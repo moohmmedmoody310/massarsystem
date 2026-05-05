@@ -244,37 +244,6 @@ tr:hover td{background:rgba(240,244,248,0.6)}
   <div class="content" id="content">
     <div class="loading"><div class="spinner"></div><br>جاري التحميل...</div>
   </div>
-  
-  <!-- Applicants Page -->
-  <div id="applicants-page" class="page-section">
-    <div class="table-card">
-      <div class="table-header">
-        <h3>📝 الطلاب المقدمين</h3>
-        <div class="table-actions">
-          <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" oninput="debounce(()=>renderApplicants(this.value),400)">
-          <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
-        </div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>الاسم</th>
-            <th>الهاتف</th>
-            <th>ولي الأمر</th>
-            <th>العمر</th>
-            <th>البرنامج</th>
-            <th>الوقت المناسب</th>
-            <th>تاريخ التقديم</th>
-            <th>الحالة</th>
-            <th>إجراءات</th>
-          </tr>
-        </thead>
-        <tbody id="applicants-tbody">
-          <tr><td colspan="9" style="text-align:center"><div class="loading"><div class="spinner"></div></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <!-- TOAST -->
@@ -1280,9 +1249,8 @@ function toast(msg, type='success'){
 
 // ===================== APPLICANTS =====================
 async function renderApplicants(search = ''){
-  const content = document.getElementById('applicants-page');
-  content.style.display = 'block';
-  document.getElementById('content').style.display = 'none';
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><br>جاري تحميل البيانات...</div>';
   
   try {
     const response = await fetch(`/api/applicants${search ? '?search=' + encodeURIComponent(search) : ''}`);
@@ -1312,9 +1280,36 @@ async function renderApplicants(search = ''){
       </tr>
     `).join('') || '<tr><td colspan="9" style="text-align:center"><div class="empty-state"><div class="icon">📝</div><p>لا يوجد طلاب مقدمين${search ? ' بهذا البحث' : ''}</p></div></td></tr>';
     
-    document.getElementById('applicants-tbody').innerHTML = rows;
+    content.innerHTML = `
+      <div class="table-card">
+        <div class="table-header">
+          <h3>📝 الطلاب المقدمين</h3>
+          <div class="table-actions">
+            <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" value="${search}" oninput="debounce(()=>renderApplicants(this.value),400)">
+            <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الهاتف</th>
+              <th>ولي الأمر</th>
+              <th>العمر</th>
+              <th>البرنامج</th>
+              <th>الوقت المناسب</th>
+              <th>تاريخ التقديم</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
   } catch (error) {
     console.error('Error loading applicants:', error);
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><br>حدث خطأ في تحميل البيانات</div>';
     toast('حدث خطأ في تحميل البيانات', 'error');
   }
 }
