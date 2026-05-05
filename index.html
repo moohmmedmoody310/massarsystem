@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز جمال ناصر التعليمي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#1a3c5e;--primary-light:#2980b9;--accent:#27ae60;--accent-light:#2ecc71;
+  --gold:#f39c12;--danger:#e74c3c;--bg:#f0f4f8;--white:#fff;
+  --text:#2c3e50;--text-muted:#7f8c8d;--border:#dde2e8;
+  --sidebar-w:260px;--header-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;overflow-x:hidden}
+
+/* SIDEBAR */
+.sidebar{position:fixed;right:0;top:0;width:var(--sidebar-w);height:100vh;background:var(--primary);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:12px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--primary-light),var(--accent));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.logo-text h2{color:#fff;font-size:14px;font-weight:700}
+.logo-text p{color:rgba(255,255,255,0.5);font-size:11px}
+nav{flex:1;padding:16px 0;overflow-y:auto}
+.nav-section{padding:8px 20px 4px;font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.6);font-size:14px;font-weight:600;border-right:3px solid transparent;margin:2px 0}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;border-right-color:var(--primary-light)}
+.nav-item.active{background:rgba(41,128,185,0.3);color:#fff;border-right-color:var(--accent)}
+.nav-item .icon{font-size:18px;width:22px;text-align:center}
+.nav-item .badge{margin-right:auto;background:var(--danger);color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1)}
+.user-info{display:flex;align-items:center;gap:10px}
+.user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--primary-light),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.user-name{color:rgba(255,255,255,0.8);font-size:13px;font-weight:600}
+.logout-btn{margin-right:auto;background:rgba(231,76,60,0.2);border:none;color:#e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;transition:all 0.2s}
+.logout-btn:hover{background:rgba(231,76,60,0.35)}
+
+/* MAIN */
+.main{margin-right:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+.header{height:var(--header-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50}
+.page-title{font-size:20px;font-weight:700;color:var(--primary);flex:1}
+.header-actions{display:flex;align-items:center;gap:12px}
+.header-btn{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);display:flex;align-items:center;gap:6px;transition:all 0.2s}
+.header-btn:hover{border-color:var(--primary-light);color:var(--primary-light)}
+.content{padding:28px;flex:1}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:28px}
+.stat-card{background:var(--white);border-radius:16px;padding:24px;display:flex;align-items:center;gap:16px;border:1px solid var(--border);transition:transform 0.2s,box-shadow 0.2s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.08)}
+.stat-icon{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.stat-icon.blue{background:rgba(41,128,185,0.12)}
+.stat-icon.green{background:rgba(39,174,96,0.12)}
+.stat-icon.gold{background:rgba(243,156,18,0.12)}
+.stat-icon.red{background:rgba(231,76,60,0.12)}
+.stat-icon.purple{background:rgba(142,68,173,0.12)}
+.stat-info h3{font-size:26px;font-weight:900;color:var(--primary);line-height:1}
+.stat-info p{font-size:12px;color:var(--text-muted);margin-top:4px;font-weight:600}
+
+/* TABLE */
+.table-card{background:var(--white);border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:24px}
+.table-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-header h3{font-size:16px;font-weight:700;color:var(--primary)}
+.table-actions{display:flex;gap:10px;align-items:center}
+.search-input{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;width:220px;transition:all 0.2s;direction:rtl}
+.search-input:focus{border-color:var(--primary-light);background:#fff}
+.btn{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-success{background:var(--accent);color:#fff}
+.btn-success:hover{background:var(--accent-light)}
+.btn-warning{background:var(--gold);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary-light);color:var(--primary-light)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg)}
+th{padding:12px 16px;font-size:12px;font-weight:700;color:var(--text-muted);text-align:right;letter-spacing:0.5px}
+td{padding:13px 16px;font-size:13px;border-top:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:rgba(240,244,248,0.6)}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-success{background:rgba(39,174,96,0.1);color:#27ae60}
+.badge-danger{background:rgba(231,76,60,0.1);color:#e74c3c}
+.badge-warning{background:rgba(243,156,18,0.1);color:#f39c12}
+.badge-info{background:rgba(41,128,185,0.1);color:#2980b9}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--white);border-radius:20px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.3)}
+.modal-header{padding:24px 28px 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:8px}
+.modal-header h3{font-size:18px;font-weight:700;color:var(--primary)}
+.modal-close{background:var(--bg);border:none;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:18px;color:var(--text-muted);transition:all 0.2s}
+.modal-close:hover{background:var(--danger);color:#fff}
+.modal-body{padding:8px 28px 28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:0}
+.form-group.full{grid-column:span 2}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;transition:all 0.2s;direction:rtl;color:var(--text)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary-light);background:#fff;box-shadow:0 0 0 3px rgba(41,128,185,0.1)}
+.form-group textarea{resize:vertical;min-height:80px}
+.modal-footer{padding:0 28px 24px;display:flex;gap:12px;justify-content:flex-end}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;left:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--white);border-radius:12px;padding:14px 20px;box-shadow:0 8px 30px rgba(0,0,0,0.15);display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;animation:slideIn 0.3s ease;border-right:4px solid var(--accent);min-width:280px}
+.toast.error{border-right-color:var(--danger)}
+.toast.warning{border-right-color:var(--gold)}
+@keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+.chart-card{background:var(--white);border-radius:16px;padding:24px;border:1px solid var(--border)}
+.chart-card h3{font-size:15px;font-weight:700;color:var(--primary);margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:10px;height:140px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bar{width:100%;background:linear-gradient(to top,var(--primary),var(--primary-light));border-radius:6px 6px 0 0;transition:height 0.8s cubic-bezier(0.34,1.56,0.64,1);min-height:4px;cursor:pointer}
+.bar:hover{background:linear-gradient(to top,var(--accent),var(--accent-light))}
+.bar-label{font-size:10px;color:var(--text-muted);font-weight:700;white-space:nowrap}
+.bar-val{font-size:10px;color:var(--primary);font-weight:700}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+.donut{position:relative;width:120px;height:120px;margin:0 auto 16px}
+.donut svg{transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-center .pct{font-size:22px;font-weight:900;color:var(--primary)}
+.donut-center .lbl{font-size:10px;color:var(--text-muted)}
+.donut-legend{display:flex;flex-direction:column;gap:8px;width:100%}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:20px}
+.tab{flex:1;padding:9px;border-radius:9px;border:none;background:transparent;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);transition:all 0.2s}
+.tab.active{background:var(--white);color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+
+/* PAGE SECTIONS */
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--text-muted);font-size:14px}
+.spinner{display:inline-block;width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--primary-light);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STUDENT PROFILE */
+.profile-header{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:16px;padding:28px;color:#fff;display:flex;align-items:center;gap:20px;margin-bottom:24px}
+.profile-avatar{width:70px;height:70px;background:rgba(255,255,255,0.2);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0}
+.profile-info h2{font-size:22px;font-weight:700}
+.profile-info p{color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.profile-stat{background:var(--white);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
+.profile-stat h4{font-size:20px;font-weight:900;color:var(--primary)}
+.profile-stat p{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px;opacity:0.4}
+.empty-state p{font-size:14px}
+
+/* WHATSAPP */
+.wa-btn{background:#25d366;color:#fff;border:none;border-radius:10px;padding:8px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s}
+.wa-btn:hover{background:#128c7e}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-right:0}
+  .form-grid{grid-template-columns:1fr}
+  .form-group.full{grid-column:span 1}
+  .chart-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎓</div>
+    <div class="logo-text">
+      <h2>جمال ناصر</h2>
+      <p>المركز التعليمي</p>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">الرئيسية</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">📊</span> لوحة التحكم
+    </div>
+    <div class="nav-section">إدارة</div>
+    <div class="nav-item" onclick="showPage('students')">
+      <span class="icon">👥</span> الطلاب
+    </div>
+    <div class="nav-item" onclick="showPage('teachers')">
+      <span class="icon">👨‍🏫</span> المعلمون
+    </div>
+    <div class="nav-item" onclick="showPage('groups')">
+      <span class="icon">📚</span> المجموعات
+    </div>
+    <div class="nav-section">المالية</div>
+    <div class="nav-item" onclick="showPage('payments')">
+      <span class="icon">💰</span> المدفوعات <span class="badge" id="unpaid-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('expenses')">
+      <span class="icon">📋</span> المصروفات
+    </div>
+    <div class="nav-section">الدراسة</div>
+    <div class="nav-item" onclick="showPage('attendance')">
+      <span class="icon">✅</span> الحضور والغياب
+    </div>
+    <div class="nav-item" onclick="showPage('results')">
+      <span class="icon">📝</span> النتائج والدرجات
+    </div>
+    <div class="nav-section">التقارير</div>
+    <div class="nav-item" onclick="showPage('reports')">
+      <span class="icon">📈</span> التقارير
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="user-avatar">م</div>
+      <span class="user-name" id="user-name-display">المدير</span>
+      <button class="logout-btn" onclick="window.location.href='/logout'">خروج</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="header">
+    <div class="page-title" id="page-title">لوحة التحكم</div>
+    <div class="header-actions">
+      <button class="header-btn" onclick="refreshPage()">🔄 تحديث</button>
+      <button class="header-btn" id="header-add-btn" style="display:none">+ إضافة جديد</button>
+    </div>
+  </div>
+  <div class="content" id="content">
+    <div class="loading"><div class="spinner"></div><br>جاري التحميل...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ===================== STATE =====================
+const state = {
+  page: 'dashboard',
+  students: [], teachers: [], groups: [], grades: [], subjects: [],
+  currentStudent: null
+};
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadLookups();
+  showPage('dashboard');
+  setUserDisplay();
+});
+
+function setUserDisplay(){
+  // set from cookie/session via API if needed
+}
+
+async function loadLookups(){
+  try{
+    const [gr, sub] = await Promise.all([
+      fetch('/api/grades').then(r=>r.json()),
+      fetch('/api/subjects').then(r=>r.json())
+    ]);
+    state.grades = gr;
+    state.subjects = sub;
+  } catch(e){}
+}
+
+// ===================== NAVIGATION =====================
+function showPage(page){
+  state.page = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+  
+  const titles = {
+    dashboard:'لوحة التحكم', students:'الطلاب', teachers:'المعلمون',
+    groups:'المجموعات', payments:'المدفوعات', expenses:'المصروفات',
+    attendance:'الحضور والغياب', results:'النتائج والدرجات', reports:'التقارير'
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  
+  const addBtn = document.getElementById('header-add-btn');
+  const addActions = {
+    students: () => showAddStudentModal(),
+    teachers: () => showAddTeacherModal(),
+    groups: () => showAddGroupModal(),
+    expenses: () => showAddExpenseModal()
+  };
+  
+  if(addActions[page]){
+    addBtn.style.display = 'flex';
+    addBtn.onclick = addActions[page];
+    addBtn.textContent = '+ إضافة جديد';
+  } else {
+    addBtn.style.display = 'none';
+  }
+  
+  const pages = {
+    dashboard: renderDashboard,
+    students: renderStudents,
+    teachers: renderTeachers,
+    groups: renderGroups,
+    payments: renderPayments,
+    expenses: renderExpenses,
+    attendance: renderAttendance,
+    results: renderResults,
+    reports: renderReports
+  };
+  
+  if(pages[page]) pages[page]();
+}
+
+function refreshPage(){ showPage(state.page); }
+
+// ===================== DASHBOARD =====================
+async function renderDashboard(){
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><br>جاري تحميل البيانات...</div>';
+  
+  const data = await fetch('/api/dashboard').then(r=>r.json());
+  
+  // Update unpaid badge
+  if(data.unpaid_students > 0){
+    const badge = document.getElementById('unpaid-badge');
+    badge.textContent = data.unpaid_students;
+    badge.style.display = 'inline';
+  }
+  
+  const maxIncome = Math.max(...data.monthly_stats.map(m => m.income), 1);
+  const barsHTML = data.monthly_stats.map(m => `
+    <div class="bar-wrap">
+      <div class="bar-val">${m.income > 0 ? (m.income/1000).toFixed(1)+'k' : ''}</div>
+      <div class="bar" style="height:${(m.income/maxIncome)*100}%" title="${m.month}: ${m.income.toLocaleString()} جنيه"></div>
+      <div class="bar-label">${m.month}</div>
+    </div>
+  `).join('');
+  
+  const paidPct = data.paid_students + data.unpaid_students > 0 ?
+    Math.round(data.paid_students/(data.paid_students+data.unpaid_students)*100) : 0;
+  const r = 52, circ = 2*Math.PI*r;
+  const offset = circ - (paidPct/100)*circ;
+  
+  const recentHTML = data.recent_payments.length ? data.recent_payments.map(p => `
+    <tr>
+      <td><strong>${p.student_name}</strong></td>
+      <td><span class="badge badge-success">${p.amount.toLocaleString()} جنيه</span></td>
+      <td>${MONTHS_AR[p.month] || p.month} ${p.year}</td>
+      <td>${p.payment_date ? p.payment_date.split('T')[0] : ''}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openReceipt(${p.id})">🖨️ إيصال</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="loading">لا توجد مدفوعات</td></tr>';
+  
+  content.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info"><h3>${data.total_students}</h3><p>الطلاب النشطون</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">💰</div>
+        <div class="stat-info"><h3>${(data.monthly_income/1000).toFixed(1)}k</h3><p>إيرادات ${data.current_month}</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gold">👨‍🏫</div>
+        <div class="stat-info"><h3>${data.total_teachers}</h3><p>المعلمون النشطون</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info"><h3>${data.unpaid_students}</h3><p>لم يدفعوا هذا الشهر</p></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">📚</div>
+        <div class="stat-info"><h3>${data.total_groups}</h3><p>المجموعات النشطة</p></div>
+      </div>
+    </div>
+    
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>📊 الإيرادات الشهرية (آخر 6 أشهر)</h3>
+        <div class="bar-chart">${barsHTML}</div>
+      </div>
+      <div class="chart-card">
+        <h3>💳 نسبة التحصيل - ${data.current_month}</h3>
+        <div class="donut-wrap">
+          <div class="donut">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="${r}" fill="none" stroke="#ecf0f1" stroke-width="12"/>
+              <circle cx="60" cy="60" r="${r}" fill="none" stroke="#27ae60" stroke-width="12"
+                stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition:stroke-dashoffset 1s ease"/>
+            </svg>
+            <div class="donut-center"><div class="pct">${paidPct}%</div><div class="lbl">مدفوع</div></div>
+          </div>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div><span>${data.paid_students} طالب دفع</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div><span>${data.unpaid_students} لم يدفع</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-card">
+      <div class="table-header">
+        <h3>💳 آخر المدفوعات</h3>
+        <button class="btn btn-outline" onclick="showPage('payments')">عرض الكل</button>
+      </div>
+      <table><thead><tr><th>الطالب</th><th>المبلغ</th><th>الشهر</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+      <tbody>${recentHTML}</tbody></table>
+    </div>
+  `;
+}
+
+const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
+
+// ===================== STUDENTS =====================
+async function renderStudents(search=''){
+  const content = document.getElementById('content');
+  let url = '/api/students?status=active';
+  if(search) url += '&search=' + encodeURIComponent(search);
+  
+  const students = await fetch(url).then(r=>r.json());
+  state.students = students;
+  
+  const gradesOptions = state.grades.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+  
+  const rows = students.length ? students.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong><br><small style="color:var(--text-muted)">${s.grade_name||''}</small></td>
+      <td>${s.phone||'-'}</td>
+      <td>${s.parent_name||'-'}</td>
+      <td>${s.parent_phone||'-'}</td>
+      <td>${s.group_name||'-'}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="viewStudent(${s.id})">👁️ عرض</button>
+        <button class="btn btn-sm btn-success" onclick="showPaymentModal(${s.id},'${s.name}')">💰 دفع</button>
+        ${s.parent_whatsapp ? `<button class="wa-btn" style="padding:6px 10px;font-size:11px" onclick="sendWhatsApp('${s.parent_whatsapp}','${s.name}')">📱 واتساب</button>` : ''}
+      </td>
+    </tr>
+  `).join('') : `<tr><td colspan="6"><div class="empty-state"><div class="icon">👥</div><p>لا يوجد طلاب${search ? ' بهذا البحث' : ''}</p></div></td></tr>`;
+  
+  content.innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>👥 الطلاب (${students.length})</h3>
+        <div class="table-actions">
+          <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="student-search" value="${search}" oninput="debounce(()=>renderStudents(this.value),400)">
+          <button class="btn btn-outline" onclick="window.location.href='/api/export/students'" title="تصدير إكسيل">📊 Excel</button>
+          <button class="btn btn-outline" onclick="showImportModal()">📥 استيراد</button>
+          <button class="btn btn-primary" onclick="showAddStudentModal()">+ طالب جديد</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>الطالب</th><th>الهاتف</th><th>ولي الأمر</th><th>هاتف ولي الأمر</th><th>المجموعة</th><th>إجراءات</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+  
+  document.getElementById('student-search').addEventListener('input', function(){
+    clearTimeout(window._st);
+    window._st = setTimeout(() => renderStudents(this.value), 400);
+  });
+}
+
+async function viewStudent(id){
+  const data = await fetch(`/api/students/${id}`).then(r=>r.json());
+  const s = data.student;
+  
+  const paymentsHTML = data.payments.length ? data.payments.map(p => `
+    <tr>
+      <td>${MONTHS_AR[p.month]||p.month} ${p.year}</td>
+      <td><strong>${p.amount.toLocaleString()} جنيه</strong></td>
+      <td>${p.payment_date ? p.payment_date.split('T')[0] : ''}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openReceipt(${p.id})">🖨️</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">لا توجد مدفوعات</td></tr>';
+  
+  const attendanceHTML = data.attendance.slice(0,10).map(a => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px">${a.date}</span>
+      <span class="badge ${a.status==='present'?'badge-success':'badge-danger'}">${a.status==='present'?'حاضر':'غائب'}</span>
+    </div>
+  `).join('');
+  
+  const totalPaid = data.payments.reduce((s,p) => s+p.amount, 0);
+  const presentCount = data.attendance.filter(a=>a.status==='present').length;
+  
+  showModal('profile-modal', `
+    <div class="profile-header">
+      <div class="profile-avatar">🎓</div>
+      <div class="profile-info">
+        <h2>${s.name}</h2>
+        <p>${s.grade_name||''} ${s.group_name ? '• ' + s.group_name : ''}</p>
+        <p style="margin-top:6px;opacity:0.7;font-size:12px">📞 ${s.phone||'-'} | انضم: ${s.join_date ? s.join_date.split('T')[0] : ''}</p>
+      </div>
+    </div>
+    
+    <div class="profile-stats">
+      <div class="profile-stat"><h4>${totalPaid.toLocaleString()}</h4><p>إجمالي المدفوع (جنيه)</p></div>
+      <div class="profile-stat"><h4>${data.payments.length}</h4><p>شهور الدفع</p></div>
+      <div class="profile-stat"><h4>${presentCount}/${data.attendance.length}</h4><p>نسبة الحضور</p></div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'tab-info')">بيانات</div>
+      <div class="tab" onclick="switchTab(this,'tab-payments')">مدفوعات</div>
+      <div class="tab" onclick="switchTab(this,'tab-attendance')">حضور</div>
+      <div class="tab" onclick="switchTab(this,'tab-results')">نتائج</div>
+    </div>
+    
+    <div id="tab-info" class="page-section active">
+      <div class="form-grid" style="font-size:14px">
+        <div><strong>ولي الأمر:</strong><br>${s.parent_name||'-'}</div>
+        <div><strong>هاتف ولي الأمر:</strong><br>${s.parent_phone||'-'}</div>
+        <div><strong>واتساب ولي الأمر:</strong><br>${s.parent_whatsapp||'-'}</div>
+        <div><strong>العنوان:</strong><br>${s.address||'-'}</div>
+        <div><strong>تاريخ الميلاد:</strong><br>${s.birth_date||'-'}</div>
+        <div><strong>الرقم القومي:</strong><br>${s.national_id||'-'}</div>
+      </div>
+      ${s.notes ? `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;font-size:13px"><strong>ملاحظات:</strong><br>${s.notes}</div>` : ''}
+    </div>
+    
+    <div id="tab-payments" class="page-section">
+      <table><thead><tr><th>الشهر</th><th>المبلغ</th><th>التاريخ</th><th>إيصال</th></tr></thead>
+      <tbody>${paymentsHTML}</tbody></table>
+    </div>
+    
+    <div id="tab-attendance" class="page-section">
+      ${attendanceHTML || '<div class="empty-state"><div class="icon">✅</div><p>لا يوجد سجل حضور</p></div>'}
+    </div>
+    
+    <div id="tab-results" class="page-section">
+      ${data.results.length ? data.results.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:8px">
+          <div><strong>${r.exam_name||'اختبار'}</strong><br><small style="color:var(--text-muted)">${r.subject_name||''} | ${r.exam_date||''}</small></div>
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:900;color:${r.score/r.max_score>=0.5?'var(--accent)':'var(--danger)'}">${r.score}</div>
+            <div style="font-size:11px;color:var(--text-muted)">من ${r.max_score}</div>
+          </div>
+        </div>
+      `).join('') : '<div class="empty-state"><div class="icon">📝</div><p>لا توجد نتائج</p></div>'}
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-success" onclick="showPaymentModal(${s.id},'${s.name}');closeModal('profile-modal')">💰 تسجيل دفعة</button>
+      ${s.parent_whatsapp ? `<button class="wa-btn" onclick="sendWhatsApp('${s.parent_whatsapp}','${s.name}')">📱 واتساب ولي الأمر</button>` : ''}
+      <button class="btn btn-primary" onclick="showEditStudentModal(${JSON.stringify(s).replace(/"/g,'&quot;')})">✏️ تعديل</button>
+    </div>
+  `, s.name);
+}
+
+function showAddStudentModal(){
+  const gradesOptions = state.grades.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+  showModal('add-student-modal', `
+    <div class="form-grid">
+      <div class="form-group"><label>اسم الطالب *</label><input id="s-name" placeholder="الاسم الكامل"></div>
+      <div class="form-group"><label>رقم هاتف الطالب</label><input id="s-phone" placeholder="01xxxxxxxxx"></div>
+      <div class="form-group"><label>اسم ولي الأمر</label><input id="s-parent-name" placeholder="اسم ولي الأمر"></div>
+      <div class="form-group"><label>هاتف ولي الأمر</label><input id="s-parent-phone" placeholder="01xxxxxxxxx"></div>
+      <div class="form-group"><label>واتساب ولي الأمر</label><input id="s-parent-wa" placeholder="201xxxxxxxxx (مع كود الدولة)"></div>
+      <div class="form-group"><label>المرحلة الدراسية</label>
+        <select id="s-grade"><option value="">-- اختر المرحلة --</option>${gradesOptions}</select>
+      </div>
+      <div class="form-group"><label>تاريخ الميلاد</label><input type="date" id="s-birth"></div>
+      <div class="form-group"><label>الرقم القومي</label><input id="s-nid" placeholder="14 رقم"></div>
+      <div class="form-group full"><label>العنوان</label><input id="s-address" placeholder="العنوان بالتفصيل"></div>
+      <div class="form-group full"><label>ملاحظات</label><textarea id="s-notes" placeholder="أي ملاحظات إضافية..."></textarea></div>
+    </div>
+  `, 'إضافة طالب جديد', async () => {
+    const name = document.getElementById('s-name').value.trim();
+    if(!name){ toast('برجاء إدخال اسم الطالب','error'); return; }
+    const res = await fetch('/api/students', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name, phone: document.getElementById('s-phone').value,
+        parent_name: document.getElementById('s-parent-name').value,
+        parent_phone: document.getElementById('s-parent-phone').value,
+        parent_whatsapp: document.getElementById('s-parent-wa').value,
+        grade_id: document.getElementById('s-grade').value || null,
+        birth_date: document.getElementById('s-birth').value,
+        national_id: document.getElementById('s-nid').value,
+        address: document.getElementById('s-address').value,
+        notes: document.getElementById('s-notes').value
+      })
+    }).then(r=>r.json());
+    if(res.success){ toast(res.message); closeModal('add-student-modal'); renderStudents(); }
+    else toast(res.message,'error');
+  });
+}
+
+// ===================== TEACHERS =====================
+async function renderTeachers(){
+  const teachers = await fetch('/api/teachers').then(r=>r.json());
+  state.teachers = teachers;
+  
+  const rows = teachers.length ? teachers.map(t => `
+    <tr>
+      <td><strong>${t.name}</strong></td>
+      <td>${t.subject||'-'}</td>
+      <td>${t.phone||'-'}</td>
+      <td>${(t.salary||0).toLocaleString()} جنيه</td>
+      <td>${t.groups_count||0} مجموعة</td>
+      <td>${t.students_count||0} طالب</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="showPayTeacherModal(${t.id},'${t.name}',${t.salary})">💸 راتب</button>
+        <button class="btn btn-sm btn-outline" onclick="showEditTeacherModal(${t.id})">✏️</button>
+        ${t.whatsapp ? `<button class="wa-btn" style="padding:5px 8px;font-size:11px" onclick="sendWhatsApp('${t.whatsapp}','${t.name}')">📱</button>` : ''}
+      </td>
+    </tr>
+  `).join('') : `<tr><td colspan="7"><div class="empty-state"><div class="icon">👨‍🏫</div><p>لا يوجد معلمون</p></div></td></tr>`;
+  
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>👨‍🏫 المعلمون (${teachers.length})</h3>
+        <button class="btn btn-primary" onclick="showAddTeacherModal()">+ معلم جديد</button>
+      </div>
+      <table>
+        <thead><tr><th>الاسم</th><th>المادة</th><th>الهاتف</th><th>الراتب</th><th>المجموعات</th><th>الطلاب</th><th>إجراءات</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showAddTeacherModal(){
+  const subjectsOptions = state.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  showModal('add-teacher-modal', `
+    <div class="form-grid">
+      <div class="form-group"><label>اسم المعلم *</label><input id="t-name" placeholder="الاسم الكامل"></div>
+      <div class="form-group"><label>المادة</label><select id="t-subject"><option value="">-- اختر المادة --</option>${subjectsOptions}</select></div>
+      <div class="form-group"><label>رقم الهاتف</label><input id="t-phone" placeholder="01xxxxxxxxx"></div>
+      <div class="form-group"><label>واتساب</label><input id="t-wa" placeholder="201xxxxxxxxx"></div>
+      <div class="form-group"><label>الراتب الأساسي (جنيه)</label><input type="number" id="t-salary" placeholder="0" min="0"></div>
+      <div class="form-group full"><label>ملاحظات</label><textarea id="t-notes"></textarea></div>
+    </div>
+  `, 'إضافة معلم جديد', async () => {
+    const name = document.getElementById('t-name').value.trim();
+    if(!name){ toast('برجاء إدخال اسم المعلم','error'); return; }
+    const res = await fetch('/api/teachers', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name, subject: document.getElementById('t-subject').value,
+        phone: document.getElementById('t-phone').value,
+        whatsapp: document.getElementById('t-wa').value,
+        salary: parseFloat(document.getElementById('t-salary').value)||0,
+        notes: document.getElementById('t-notes').value
+      })
+    }).then(r=>r.json());
+    if(res.success){ toast(res.message); closeModal('add-teacher-modal'); renderTeachers(); }
+    else toast(res.message,'error');
+  });
+}
+
+function showPayTeacherModal(tid, name, salary){
+  const now = new Date();
+  showModal('pay-teacher-modal', `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px">💸</div>
+      <h3 style="color:var(--primary);margin:8px 0">صرف راتب: ${name}</h3>
+      <p style="color:var(--text-muted)">الراتب الأساسي: ${(salary||0).toLocaleString()} جنيه</p>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>الشهر</label>
+        <select id="ts-month">${Object.entries(MONTHS_AR).map(([k,v])=>`<option value="${k}" ${k==now.getMonth()+1?'selected':''}>${v}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>السنة</label><input type="number" id="ts-year" value="${now.getFullYear()}"></div>
+      <div class="form-group full"><label>المبلغ المصروف (جنيه) *</label><input type="number" id="ts-amount" value="${salary||0}" min="0"></div>
+      <div class="form-group full"><label>ملاحظات</label><textarea id="ts-notes"></textarea></div>
+    </div>
+  `, 'صرف راتب', async () => {
+    const amount = parseFloat(document.getElementById('ts-amount').value);
+    if(!amount){ toast('برجاء إدخال المبلغ','error'); return; }
+    const res = await fetch(`/api/teachers/${tid}/salary`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        amount, month: document.getElementById('ts-month').value,
+        year: document.getElementById('ts-year').value,
+        notes: document.getElementById('ts-notes').value
+      })
+    }).then(r=>r.json());
+    if(res.success){ toast(res.message); closeModal('pay-teacher-modal'); }
+    else toast(res.message,'error');
+  });
+}
+
+// ===================== GROUPS =====================
+async function renderGroups(){
+  const groups = await fetch('/api/groups').then(r=>r.json());
+  const days = {saturday:'السبت',sunday:'الأحد',monday:'الاثنين',tuesday:'الثلاثاء',wednesday:'الأربعاء',thursday:'الخميس',friday:'الجمعة'};
+  
+  const rows = groups.length ? groups.map(g => `
+    <tr>
+      <td><strong>${g.name}</strong></td>
+      <td>${g.teacher_name||'-'}</td>
+      <td>${g.subject_name||'-'}</td>
+      <td>${g.grade_name||'-'}</td>
+      <td>${days[g.day_of_week]||g.day_of_week||'-'} ${g.time_slot||''}</td>
+      <td>${g.students_count||0} / ${g.max_students}</td>
+      <td>${(g.monthly_fee||0).toLocaleString()} جنيه</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="showAttendanceForGroup(${g.id},'${g.name}')">✅ حضور</button>
+      </td>
+    </tr>
+  `).join('') : `<tr><td colspan="8"><div class="empty-state"><div class="icon">📚</div><p>لا توجد مجموعات</p></div></td></tr>`;
+  
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📚 المجموعات (${groups.length})</h3>
+        <button class="btn btn-primary" onclick="showAddGroupModal()">+ مجموعة جديدة</button>
+      </div>
+      <table>
+        <thead><tr><th>الاسم</th><th>المعلم</th><th>المادة</th><th>المرحلة</th><th>الموعد</th><th>الطلاب</th><th>الرسوم</th><th>إجراءات</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showAddGroupModal(){
+  const teachersOptions = state.teachers.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  const gradesOptions = state.grades.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+  const subjectsOptions = state.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const daysOptions = [['saturday','السبت'],['sunday','الأحد'],['monday','الاثنين'],['tuesday','الثلاثاء'],['wednesday','الأربعاء'],['thursday','الخميس'],['friday','الجمعة']].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  
+  showModal('add-group-modal',`
+    <div class="form-grid">
+      <div class="form-group full"><label>اسم المجموعة *</label><input id="g-name" placeholder="مثال: مجموعة رياضيات ثانوي أ"></div>
+      <div class="form-group"><label>المعلم</label><select id="g-teacher"><option value="">-- اختر --</option>${teachersOptions}</select></div>
+      <div class="form-group"><label>المادة</label><select id="g-subject"><option value="">-- اختر --</option>${subjectsOptions}</select></div>
+      <div class="form-group"><label>المرحلة الدراسية</label><select id="g-grade"><option value="">-- اختر --</option>${gradesOptions}</select></div>
+      <div class="form-group"><label>يوم الأسبوع</label><select id="g-day"><option value="">-- اختر --</option>${daysOptions}</select></div>
+      <div class="form-group"><label>وقت الحصة</label><input id="g-time" placeholder="مثال: 4:00 - 5:30 عصراً"></div>
+      <div class="form-group"><label>الرسوم الشهرية (جنيه)</label><input type="number" id="g-fee" placeholder="0" min="0"></div>
+      <div class="form-group"><label>الحد الأقصى للطلاب</label><input type="number" id="g-max" value="20" min="1"></div>
+    </div>
+  `,'إضافة مجموعة جديدة', async ()=>{
+    const name = document.getElementById('g-name').value.trim();
+    if(!name){ toast('برجاء إدخال اسم المجموعة','error'); return; }
+    const res = await fetch('/api/groups',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name, teacher_id: document.getElementById('g-teacher').value||null,
+        subject_id: document.getElementById('g-subject').value||null,
+        grade_id: document.getElementById('g-grade').value||null,
+        day_of_week: document.getElementById('g-day').value,
+        time_slot: document.getElementById('g-time').value,
+        monthly_fee: parseFloat(document.getElementById('g-fee').value)||0,
+        max_students: parseInt(document.getElementById('g-max').value)||20
+      })
+    }).then(r=>r.json());
+    if(res.success){ toast(res.message); closeModal('add-group-modal'); renderGroups(); }
+    else toast(res.message,'error');
+  });
+}
+
+// ===================== PAYMENTS =====================
+async function renderPayments(){
+  const now = new Date();
+  const month = now.getMonth()+1;
+  const year = now.getFullYear();
+  
+  const students = await fetch(`/api/payments/monthly-status?month=${month}&year=${year}`).then(r=>r.json());
+  
+  const paid = students.filter(s=>s.paid);
+  const unpaid = students.filter(s=>!s.paid);
+  
+  const rows = students.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong></td>
+      <td>${s.grade_name||'-'}</td>
+      <td>${(s.required_amount||0).toLocaleString()} جنيه</td>
+      <td>
+        ${s.paid ? 
+          `<span class="badge badge-success">✓ مدفوع ${(s.paid_amount||0).toLocaleString()} جنيه</span>` : 
+          `<span class="badge badge-danger">✗ لم يدفع</span>`
+        }
+      </td>
+      <td>
+        ${!s.paid ? `<button class="btn btn-sm btn-success" onclick="showPaymentModal(${s.id},'${s.name}',${s.required_amount||0})">💰 تسجيل دفع</button>` : ''}
+        ${s.paid ? `<button class="btn btn-sm btn-outline" onclick="openReceipt(${s.payment_id})">🖨️ إيصال</button>` : ''}
+        ${s.parent_whatsapp && !s.paid ? `<button class="wa-btn" style="padding:5px 8px;font-size:11px" onclick="sendPaymentReminder('${s.parent_whatsapp}','${s.name}')">📱 تذكير</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('content').innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card"><div class="stat-icon green">✓</div><div class="stat-info"><h3>${paid.length}</h3><p>دفعوا هذا الشهر</p></div></div>
+      <div class="stat-card"><div class="stat-icon red">✗</div><div class="stat-info"><h3>${unpaid.length}</h3><p>لم يدفعوا بعد</p></div></div>
+      <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-info"><h3>${paid.reduce((s,p)=>s+(p.paid_amount||0),0).toLocaleString()}</h3><p>إجمالي المحصّل</p></div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>💰 مدفوعات ${MONTHS_AR[month]} ${year}</h3>
+        <div class="table-actions">
+          <button class="btn btn-outline" onclick="window.open('/api/export/payments?month=${month}&year=${year}')">📊 Excel</button>
+          <button class="btn btn-outline" onclick="window.open('/api/reports/monthly-pdf?month=${month}&year=${year}')">📄 PDF تقرير</button>
+          <button class="btn btn-warning" onclick="sendBulkReminder(${JSON.stringify(unpaid.filter(s=>s.parent_whatsapp).map(s=>s.parent_whatsapp))})">📱 تذكير للكل</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>الطالب</th><th>المرحلة</th><th>المطلوب</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showPaymentModal(studentId, studentName, suggestedAmount=0){
+  const now = new Date();
+  showModal('payment-modal', `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px">💰</div>
+      <h3 style="color:var(--accent);margin:8px 0">تسجيل دفعة</h3>
+      <p style="color:var(--text-muted)">${studentName}</p>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>الشهر</label>
+        <select id="p-month">${Object.entries(MONTHS_AR).map(([k,v])=>`<option value="${k}" ${k==now.getMonth()+1?'selected':''}>${v}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>السنة</label><input type="number" id="p-year" value="${now.getFullYear()}"></div>
+      <div class="form-group full"><label>المبلغ (جنيه) *</label>
+        <input type="number" id="p-amount" value="${suggestedAmount}" min="0" placeholder="أدخل المبلغ">
+      </div>
+      <div class="form-group"><label>طريقة الدفع</label>
+        <select id="p-method">
+          <option value="cash">نقدي</option>
+          <option value="transfer">تحويل بنكي</option>
+          <option value="vodafone">فودافون كاش</option>
+          <option value="instapay">إنستاباي</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>ملاحظات</label><textarea id="p-notes"></textarea></div>
+    </div>
+  `, 'تسجيل الدفعة', async ()=>{
+    const amount = parseFloat(document.getElementById('p-amount').value);
+    if(!amount || amount<=0){ toast('برجاء إدخال مبلغ صحيح','error'); return; }
+    const res = await fetch('/api/payments',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        student_id: studentId, amount,
+        month: document.getElementById('p-month').value,
+        year: document.getElementById('p-year').value,
+        payment_method: document.getElementById('p-method').value,
+        notes: document.getElementById('p-notes').value
+      })
+    }).then(r=>r.json());
+    if(res.success){
+      toast(res.message);
+      closeModal('payment-modal');
+      if(state.page==='payments') renderPayments();
+      if(confirm('هل تريد طباعة الإيصال؟')) openReceipt(res.payment_id);
+    } else toast(res.message,'error');
+  });
+}
+
+// ===================== EXPENSES =====================
+async function renderExpenses(){
+  const now = new Date();
+  const expenses = await fetch(`/api/expenses?month=${now.getMonth()+1}&year=${now.getFullYear()}`).then(r=>r.json());
+  const total = expenses.reduce((s,e)=>s+e.amount, 0);
+  
+  const rows = expenses.length ? expenses.map(e => `
+    <tr>
+      <td><strong>${e.description}</strong></td>
+      <td><span class="badge badge-warning">${e.category||'عام'}</span></td>
+      <td>${e.amount.toLocaleString()} جنيه</td>
+      <td>${e.date ? e.date.split('T')[0] : ''}</td>
+      <td>${e.notes||'-'}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>لا توجد مصروفات هذا الشهر</p></div></td></tr>`;
+  
+  document.getElementById('content').innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+      <div class="stat-card"><div class="stat-icon red">📉</div><div class="stat-info"><h3>${total.toLocaleString()}</h3><p>إجمالي المصروفات</p></div></div>
+      <div class="stat-card"><div class="stat-icon blue">📋</div><div class="stat-info"><h3>${expenses.length}</h3><p>عدد البنود</p></div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📋 المصروفات - ${MONTHS_AR[now.getMonth()+1]} ${now.getFullYear()}</h3>
+        <button class="btn btn-primary" onclick="showAddExpenseModal()">+ مصروف جديد</button>
+      </div>
+      <table>
+        <thead><tr><th>الوصف</th><th>التصنيف</th><th>المبلغ</th><th>التاريخ</th><th>ملاحظات</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function showAddExpenseModal(){
+  showModal('add-expense-modal',`
+    <div class="form-grid">
+      <div class="form-group full"><label>وصف المصروف *</label><input id="e-desc" placeholder="مثال: فاتورة كهرباء، إيجار قاعة..."></div>
+      <div class="form-group"><label>المبلغ (جنيه) *</label><input type="number" id="e-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>التصنيف</label>
+        <select id="e-cat">
+          <option value="إيجار">إيجار</option>
+          <option value="كهرباء">كهرباء</option>
+          <option value="مياه">مياه</option>
+          <option value="أدوات مكتبية">أدوات مكتبية</option>
+          <option value="صيانة">صيانة</option>
+          <option value="تسويق">تسويق</option>
+          <option value="رواتب">رواتب</option>
+          <option value="أخرى">أخرى</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>ملاحظات</label><textarea id="e-notes"></textarea></div>
+    </div>
+  `,'إضافة مصروف', async ()=>{
+    const desc = document.getElementById('e-desc').value.trim();
+    const amount = parseFloat(document.getElementById('e-amount').value);
+    if(!desc||!amount){ toast('برجاء إدخال الوصف والمبلغ','error'); return; }
+    const res = await fetch('/api/expenses',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({description:desc,amount,category:document.getElementById('e-cat').value,notes:document.getElementById('e-notes').value})
+    }).then(r=>r.json());
+    if(res.success){ toast(res.message); closeModal('add-expense-modal'); renderExpenses(); }
+    else toast(res.message,'error');
+  });
+}
+
+// ===================== ATTENDANCE =====================
+async function renderAttendance(){
+  const groups = await fetch('/api/groups').then(r=>r.json());
+  
+  const groupsOptions = groups.map(g=>`<option value="${g.id}" data-name="${g.name}">${g.name} - ${g.teacher_name||''}</option>`).join('');
+  
+  document.getElementById('content').innerHTML = `
+    <div class="table-card" style="margin-bottom:20px">
+      <div class="table-header">
+        <h3>✅ تسجيل الحضور والغياب</h3>
+      </div>
+      <div style="padding:20px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px">
+          <label>المجموعة</label>
+          <select id="att-group" style="width:100%">
+            <option value="">-- اختر المجموعة --</option>${groupsOptions}
+          </select>
+        </div>
+        <div class="form-group" style="min-width:160px">
+          <label>التاريخ</label>
+          <input type="date" id="att-date" value="${new Date().toISOString().split('T')[0]}" style="width:100%">
+        </div>
+        <button class="btn btn-primary" onclick="loadAttendanceList()">تحميل القائمة</button>
+      </div>
+    </div>
+    <div id="attendance-list"></div>
+  `;
+}
+
+async function loadAttendanceList(){
+  const gid = document.getElementById('att-group').value;
+  const date = document.getElementById('att-date').value;
+  if(!gid){ toast('برجاء اختيار المجموعة','error'); return; }
+  
+  const students = await fetch(`/api/attendance/group/${gid}?date=${date}`).then(r=>r.json());
+  
+  const rows = students.map(s => `
+    <tr id="att-row-${s.id}">
+      <td><strong>${s.name}</strong></td>
+      <td>
+        <div style="display:flex;gap:10px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+            <input type="radio" name="att-${s.id}" value="present" ${s.attendance_status==='present'?'checked':''} onchange="updateAttRow(${s.id},'present')"> حاضر
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+            <input type="radio" name="att-${s.id}" value="absent" ${s.attendance_status==='absent'?'checked':''} onchange="updateAttRow(${s.id},'absent')"> غائب
+          </label>
+        </div>
+      </td>
+      <td><span class="badge ${s.attendance_status==='present'?'badge-success':'badge-danger'}" id="att-badge-${s.id}">${s.attendance_status==='present'?'حاضر':'غائب'}</span></td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('attendance-list').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>طلاب المجموعة (${students.length})</h3>
+        <button class="btn btn-success" onclick="saveAttendance(${gid},'${date}')">💾 حفظ الحضور</button>
+      </div>
+      <table>
+        <thead><tr><th>الطالب</th><th>الحضور</th><th>الحالة</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+  
+  window._attendanceData = students.map(s => ({student_id:s.id, group_id:parseInt(gid), status:s.attendance_status, date}));
+}
+
+function updateAttRow(id, status){
+  const data = window._attendanceData || [];
+  const rec = data.find(r=>r.student_id===id);
+  if(rec) rec.status = status;
+  const badge = document.getElementById(`att-badge-${id}`);
+  if(badge){
+    badge.className = `badge ${status==='present'?'badge-success':'badge-danger'}`;
+    badge.textContent = status==='present'?'حاضر':'غائب';
+  }
+}
+
+async function saveAttendance(gid, date){
+  const records = window._attendanceData || [];
+  const res = await fetch('/api/attendance',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({records})
+  }).then(r=>r.json());
+  if(res.success) toast(res.message);
+  else toast(res.message,'error');
+}
+
+// ===================== RESULTS =====================
+async function renderResults(){
+  const students = await fetch('/api/students?status=active').then(r=>r.json());
+  const studentsOptions = students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const subjectsOptions = state.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  
+  document.getElementById('content').innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📝 إضافة نتيجة / درجة</h3>
+      </div>
+      <div style="padding:20px">
+        <div class="form-grid">
+          <div class="form-group"><label>الطالب *</label>
+            <select id="r-student" style="width:100%"><option value="">-- اختر الطالب --</option>${studentsOptions}</select>
+          </div>
+          <div class="form-group"><label>المادة</label>
+            <select id="r-subject" style="width:100%"><option value="">-- اختر المادة --</option>${subjectsOptions}</select>
+          </div>
+          <div class="form-group"><label>اسم الاختبار</label><input id="r-exam" placeholder="مثال: امتحان شهر أكتوبر"></div>
+          <div class="form-group"><label>تاريخ الاختبار</label><input type="date" id="r-date" value="${new Date().toISOString().split('T')[0]}"></div>
+          <div class="form-group"><label>الدرجة المحصلة</label><input type="number" id="r-score" placeholder="0" min="0"></div>
+          <div class="form-group"><label>الدرجة الكاملة</label><input type="number" id="r-max" value="100" min="1"></div>
+          <div class="form-group full"><label>ملاحظات</label><textarea id="r-notes" placeholder="تعليق على الأداء..."></textarea></div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-success" onclick="saveResult()">💾 حفظ النتيجة</button>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" style="margin-top:20px">
+      <div class="icon">💡</div>
+      <p>اختر طالباً وأدخل بياناته لعرض نتائجه</p>
+    </div>
+  `;
+}
+
+async function saveResult(){
+  const sid = document.getElementById('r-student').value;
+  const score = parseFloat(document.getElementById('r-score').value);
+  if(!sid||isNaN(score)){ toast('برجاء اختيار الطالب وإدخال الدرجة','error'); return; }
+  const res = await fetch('/api/results',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      student_id:sid,
+      subject_id:document.getElementById('r-subject').value||null,
+      exam_name:document.getElementById('r-exam').value,
+      score,max_score:parseFloat(document.getElementById('r-max').value)||100,
+      exam_date:document.getElementById('r-date').value,
+      notes:document.getElementById('r-notes').value
+    })
+  }).then(r=>r.json());
+  if(res.success) toast(res.message);
+  else toast(res.message,'error');
+}
+
+// ===================== REPORTS =====================
+async function renderReports(){
+  const now = new Date();
+  document.getElementById('content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px">
+      
+      <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:12px;cursor:pointer" onclick="window.open('/api/reports/monthly-pdf?month=${now.getMonth()+1}&year=${now.getFullYear()}')">
+        <div style="font-size:40px">📄</div>
+        <h3 style="color:var(--primary);font-size:16px">تقرير المدفوعات الشهري</h3>
+        <p style="color:var(--text-muted);font-size:13px">PDF شامل لكل مدفوعات الشهر الحالي</p>
+        <button class="btn btn-primary btn-sm">تحميل PDF</button>
+      </div>
+      
+      <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:12px;cursor:pointer" onclick="window.open('/api/export/students')">
+        <div style="font-size:40px">📊</div>
+        <h3 style="color:var(--primary);font-size:16px">قائمة الطلاب Excel</h3>
+        <p style="color:var(--text-muted);font-size:13px">تصدير كل بيانات الطلاب لملف Excel</p>
+        <button class="btn btn-success btn-sm">تحميل Excel</button>
+      </div>
+      
+      <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:12px;cursor:pointer" onclick="window.open('/api/export/payments?month=${now.getMonth()+1}&year=${now.getFullYear()}')">
+        <div style="font-size:40px">💰</div>
+        <h3 style="color:var(--primary);font-size:16px">تقرير مالي Excel</h3>
+        <p style="color:var(--text-muted);font-size:13px">مدفوعات الشهر الحالي بتفصيل كامل</p>
+        <button class="btn btn-warning btn-sm">تحميل Excel</button>
+      </div>
+      
+      <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:12px" onclick="showPage('payments')">
+        <div style="font-size:40px">📱</div>
+        <h3 style="color:var(--primary);font-size:16px">إرسال تذكيرات واتساب</h3>
+        <p style="color:var(--text-muted);font-size:13px">تذكير أولياء الأمور بسداد الرسوم</p>
+        <button class="btn btn-outline btn-sm" onclick="showPage('payments')">اذهب للمدفوعات</button>
+      </div>
+    </div>
+  `;
+}
+
+// ===================== WHATSAPP =====================
+function sendWhatsApp(phone, studentName){
+  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nأولياء أمور الطالب/ة: ${studentName}\nمن مركز جمال ناصر التعليمي،\nيسعدنا التواصل معكم.`);
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+function sendPaymentReminder(phone, studentName){
+  const now = new Date();
+  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ة: ${studentName}\n\nنذكركم بسداد رسوم شهر ${MONTHS_AR[now.getMonth()+1]} ${now.getFullYear()}.\n\nمركز جمال ناصر التعليمي\nشكراً لتعاونكم 🎓`);
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+function sendBulkReminder(phones){
+  if(!phones || phones.length===0){ toast('لا يوجد أرقام واتساب مسجلة','warning'); return; }
+  if(confirm(`سيتم فتح واتساب لـ ${phones.length} ولي أمر. هل أنت متأكد؟`)){
+    phones.forEach((phone,i) => {
+      setTimeout(()=>{
+        const msg = encodeURIComponent(`السلام عليكم،\nنذكركم بسداد رسوم هذا الشهر.\nمركز جمال ناصر التعليمي 🎓`);
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      }, i*500);
+    });
+  }
+}
+
+// ===================== RECEIPT =====================
+function openReceipt(pid){
+  window.open(`/api/payments/${pid}/receipt`, '_blank');
+}
+
+// ===================== IMPORT =====================
+function showImportModal(){
+  showModal('import-modal',`
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:48px;margin-bottom:16px">📥</div>
+      <h3 style="color:var(--primary);margin-bottom:8px">استيراد الطلاب من Excel</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px">يجب أن يكون الملف بنفس تنسيق ملف التصدير</p>
+      <input type="file" id="import-file" accept=".xlsx,.xls" style="display:none" onchange="doImport(this)">
+      <button class="btn btn-primary" onclick="document.getElementById('import-file').click()">اختيار ملف Excel</button>
+      <div style="margin-top:16px">
+        <button class="btn btn-outline btn-sm" onclick="window.open('/api/export/students')">⬇️ تحميل قالب فارغ</button>
+      </div>
+    </div>
+  `,'استيراد من Excel', null);
+}
+
+async function doImport(input){
+  const file = input.files[0];
+  if(!file) return;
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const res = await fetch('/api/import/students',{method:'POST',body:formData}).then(r=>r.json());
+  if(res.success){
+    toast(res.message);
+    closeModal('import-modal');
+    renderStudents();
+  } else toast(res.message,'error');
+}
+
+// ===================== MODAL SYSTEM =====================
+let modalCallback = null;
+
+function showModal(id, bodyHTML, title, onSave){
+  const existing = document.getElementById(id);
+  if(existing) existing.remove();
+  
+  modalCallback = onSave;
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = id;
+  modal.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h3>${title||''}</h3>
+        <button class="modal-close" onclick="closeModal('${id}')">✕</button>
+      </div>
+      <div class="modal-body">${bodyHTML}</div>
+      ${onSave ? `
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('${id}')">إلغاء</button>
+        <button class="btn btn-primary" onclick="modalCallback && modalCallback()">💾 حفظ</button>
+      </div>` : ''}
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('show'));
+  
+  modal.addEventListener('click', e => {
+    if(e.target === modal) closeModal(id);
+  });
+}
+
+function closeModal(id){
+  const modal = document.getElementById(id);
+  if(modal){
+    modal.classList.remove('show');
+    setTimeout(()=>modal.remove(), 200);
+  }
+}
+
+function switchTab(btn, tabId){
+  btn.closest('.tabs') && btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const parent = btn.closest('.modal-body') || document.getElementById('content');
+  parent.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(tabId);
+  if(target) target.classList.add('active');
+}
+
+// ===================== TOAST =====================
+function toast(msg, type='success'){
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type==='success'?'✓':type==='error'?'✗':'⚠'}</span> ${msg}`;
+  container.appendChild(el);
+  setTimeout(()=>{
+    el.style.opacity='0';
+    el.style.transform='translateX(-100%)';
+    el.style.transition='all 0.3s';
+    setTimeout(()=>el.remove(), 300);
+  }, 3500);
+}
+
+// ===================== UTILS =====================
+function debounce(fn, delay){
+  clearTimeout(window._debounce);
+  window._debounce = setTimeout(fn, delay);
+}
+</script>
+</body>
+</html>
