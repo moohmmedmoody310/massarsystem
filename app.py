@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from database import get_db, init_db
 from pdf_generator import generate_student_receipt, generate_monthly_report
-from pdf_generator_advanced import generate_ai_student_report, generate_advanced_student_receipt, generate_financial_report
-from attendance_system import attendance_system
+from pdf_generator_fixed import generate_ai_student_report, generate_advanced_student_receipt, generate_financial_report
+from attendance_system_fixed import attendance_system
 import openpyxl
 from openpyxl.styles import Font, Fill, PatternFill, Alignment, Border, Side
 import hashlib
@@ -1042,7 +1042,7 @@ def generate_ai_student_report(student_id):
         
         # الحصول على بيانات الدرجات
         cursor.execute('''
-            SELECT * FROM grades_results 
+            SELECT * FROM grades 
             WHERE student_id = ? 
             ORDER BY exam_date DESC 
             LIMIT 20
@@ -1095,8 +1095,8 @@ def get_financial_summary():
         cursor.execute('SELECT SUM(amount) as total FROM expenses')
         total_expenses = cursor.fetchone()['total'] or 0
         
-        # رواتب المعلمين
-        cursor.execute('SELECT SUM(amount) as total FROM teacher_salaries')
+        # رواتب المعلمين (من جدول expenses مع category='رواتب')
+        cursor.execute('SELECT SUM(amount) as total FROM expenses WHERE category = ?', ('رواتب',))
         teacher_salaries = cursor.fetchone()['total'] or 0
         
         db.close()
@@ -1114,6 +1114,7 @@ def get_financial_summary():
         })
         
     except Exception as e:
+        print(f"Error in financial summary: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1125,7 +1126,8 @@ def generate_financial_report():
     """توليد التقرير المالي"""
     try:
         # الحصول على البيانات المالية
-        financial_data = get_financial_summary().get_json()['data']
+        response = get_financial_summary()
+        financial_data = response.get_json()['data']
         
         # توليد التقرير
         filepath, filename = generate_financial_report(financial_data)
@@ -1138,6 +1140,7 @@ def generate_financial_report():
         )
         
     except Exception as e:
+        print(f"Error in financial report: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1145,6 +1148,7 @@ def generate_financial_report():
 
 # ==================== SECURE ADMIN AREA ====================
 @app.route('/api/admin/verify', methods=['POST'])
+@login_required
 def verify_admin_access():
     """التحقق من صلاحيات المدير"""
     data = request.get_json()
@@ -1166,6 +1170,7 @@ def verify_admin_access():
         }), 401
 
 @app.route('/api/admin/financial', methods=['GET'])
+@login_required
 def get_admin_financial_data():
     """الحصول على البيانات المالية للمدير فقط"""
     if not session.get('admin_verified'):
