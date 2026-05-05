@@ -2,13 +2,22 @@ import sqlite3
 import os
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'center.db')
+# استخدام مسار دائم على Railway.app أو محلياً
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Railway.app - استخدام مسار دائم
+    DB_PATH = '/data/center.db'
+else:
+    # محلياً
+    DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'center.db')
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+def close_db(conn):
+    conn.close()
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
