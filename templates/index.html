@@ -1260,62 +1260,101 @@ async function renderApplicants(search = ''){
   
   try {
     const response = await fetch(`/api/applicants${search ? '?search=' + encodeURIComponent(search) : ''}`);
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
+    console.log('Applicants data:', data);
     
-    const rows = data.applicants.map(a => `
-      <tr>
-        <td><strong>${a.name}</strong></td>
-        <td>${a.phone}</td>
-        <td>${a.parent_name || '-'}</td>
-        <td>${a.age}</td>
-        <td>${a.program}</td>
-        <td>${a.preferred_time || '-'}</td>
-        <td>${a.submission_date ? a.submission_date.split('T')[0] : ''}</td>
-        <td>
-          <span class="badge ${a.status === 'pending' ? 'badge-warning' : a.status === 'approved' ? 'badge-success' : 'badge-danger'}">
-            ${a.status === 'pending' ? 'في الانتظار' : a.status === 'approved' ? 'مقبول' : 'مرفوض'}
-          </span>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="viewApplicant(${a.id})">👁️ عرض</button>
-          ${a.status === 'pending' ? `
-            <button class="btn btn-sm btn-success" onclick="approveApplicant(${a.id})">✓ قبول</button>
-            <button class="btn btn-sm btn-danger" onclick="rejectApplicant(${a.id})">✗ رفض</button>
-          ` : ''}
-        </td>
-      </tr>
-    `).join('') || '<tr><td colspan="9" style="text-align:center"><div class="empty-state"><div class="icon">📝</div><p>لا يوجد طلاب مقدمين${search ? ' بهذا البحث' : ''}</p></div></td></tr>';
+    const applicants = data.applicants || data || [];
+    console.log('Applicants array:', applicants);
     
-    content.innerHTML = `
-      <div class="table-card">
-        <div class="table-header">
-          <h3>📝 الطلاب المقدمين</h3>
-          <div class="table-actions">
-            <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" value="${search}" oninput="debounce(()=>renderApplicants(this.value),400)">
-            <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
+    const rows = applicants.map(a => {
+      console.log('Processing applicant:', a);
+      return `
+        <tr>
+          <td><strong>${a.name || '-'}</strong></td>
+          <td>${a.phone || '-'}</td>
+          <td>${a.parent_name || '-'}</td>
+          <td>${a.age || '-'}</td>
+          <td>${a.program || '-'}</td>
+          <td>${a.preferred_time || '-'}</td>
+          <td>${a.submission_date ? a.submission_date.split('T')[0] : '-'}</td>
+          <td>
+            <span class="badge ${a.status === 'pending' ? 'badge-warning' : a.status === 'approved' ? 'badge-success' : 'badge-danger'}">
+              ${a.status === 'pending' ? 'في الانتظار' : a.status === 'approved' ? 'مقبول' : 'مرفوض'}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="viewApplicant(${a.id})">👁️ عرض</button>
+            ${a.status === 'pending' ? `
+              <button class="btn btn-sm btn-success" onclick="approveApplicant(${a.id})">✓ قبول</button>
+              <button class="btn btn-sm btn-danger" onclick="rejectApplicant(${a.id})">✗ رفض</button>
+            ` : ''}
+          </td>
+        </tr>
+      `;
+    }).join('');
+    
+    if (!rows || rows.length === 0) {
+      content.innerHTML = `
+        <div class="table-card">
+          <div class="table-header">
+            <h3>📝 الطلاب المقدمين</h3>
+            <div class="table-actions">
+              <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" value="${search}" oninput="debounce(()=>renderApplicants(this.value),400)">
+              <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="icon">📝</div>
+            <p>لا يوجد طلاب مقدمين${search ? ' بهذا البحث' : ''}</p>
           </div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>الاسم</th>
-              <th>الهاتف</th>
-              <th>ولي الأمر</th>
-              <th>العمر</th>
-              <th>البرنامج</th>
-              <th>الوقت المناسب</th>
-              <th>تاريخ التقديم</th>
-              <th>الحالة</th>
-              <th>إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
+      `;
+    } else {
+      content.innerHTML = `
+        <div class="table-card">
+          <div class="table-header">
+            <h3>📝 الطلاب المقدمين (${applicants.length})</h3>
+            <div class="table-actions">
+              <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" value="${search}" oninput="debounce(()=>renderApplicants(this.value),400)">
+              <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>الهاتف</th>
+                <th>ولي الأمر</th>
+                <th>العمر</th>
+                <th>البرنامج</th>
+                <th>الوقت المناسب</th>
+                <th>تاريخ التقديم</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
   } catch (error) {
     console.error('Error loading applicants:', error);
-    content.innerHTML = '<div class="loading"><div class="spinner"></div><br>حدث خطأ في تحميل البيانات</div>';
+    content.innerHTML = `
+      <div class="table-card">
+        <div class="empty-state">
+          <div class="icon">❌</div>
+          <p>حدث خطأ في تحميل البيانات: ${error.message}</p>
+          <button class="btn btn-primary" onclick="renderApplicants()">إعادة المحاولة</button>
+        </div>
+      </div>
+    `;
     toast('حدث خطأ في تحميل البيانات', 'error');
   }
 }
