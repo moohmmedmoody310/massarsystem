@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مركز جمال ناصر التعليمي</title>
+<title>مركز مسار التعليمي</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -182,7 +182,7 @@ tr:hover td{background:rgba(240,244,248,0.6)}
   <div class="sidebar-logo">
     <div class="logo-icon">🎓</div>
     <div class="logo-text">
-      <h2>جمال ناصر</h2>
+      <h2>مسار</h2>
       <p>المركز التعليمي</p>
     </div>
   </div>
@@ -192,6 +192,9 @@ tr:hover td{background:rgba(240,244,248,0.6)}
       <span class="icon">📊</span> لوحة التحكم
     </div>
     <div class="nav-section">إدارة</div>
+    <div class="nav-item" onclick="showPage('applicants')">
+      <span class="icon">📝</span> الطلاب المقدمين
+    </div>
     <div class="nav-item" onclick="showPage('students')">
       <span class="icon">👥</span> الطلاب
     </div>
@@ -241,6 +244,37 @@ tr:hover td{background:rgba(240,244,248,0.6)}
   <div class="content" id="content">
     <div class="loading"><div class="spinner"></div><br>جاري التحميل...</div>
   </div>
+  
+  <!-- Applicants Page -->
+  <div id="applicants-page" class="page-section">
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📝 الطلاب المقدمين</h3>
+        <div class="table-actions">
+          <input class="search-input" placeholder="🔍 بحث بالاسم أو الهاتف..." id="applicant-search" oninput="debounce(()=>renderApplicants(this.value),400)">
+          <button class="btn btn-outline" onclick="exportApplicants()">📊 Excel</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الهاتف</th>
+            <th>ولي الأمر</th>
+            <th>العمر</th>
+            <th>البرنامج</th>
+            <th>الوقت المناسب</th>
+            <th>تاريخ التقديم</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="applicants-tbody">
+          <tr><td colspan="9" style="text-align:center"><div class="loading"><div class="spinner"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- TOAST -->
@@ -283,7 +317,7 @@ function showPage(page){
   event && event.currentTarget && event.currentTarget.classList.add('active');
   
   const titles = {
-    dashboard:'لوحة التحكم', students:'الطلاب', teachers:'المعلمون',
+    dashboard:'لوحة التحكم', applicants:'الطلاب المقدمين', students:'الطلاب', teachers:'المعلمون',
     groups:'المجموعات', payments:'المدفوعات', expenses:'المصروفات',
     attendance:'الحضور والغياب', results:'النتائج والدرجات', reports:'التقارير'
   };
@@ -291,6 +325,7 @@ function showPage(page){
   
   const addBtn = document.getElementById('header-add-btn');
   const addActions = {
+    applicants: () => null,
     students: () => showAddStudentModal(),
     teachers: () => showAddTeacherModal(),
     groups: () => showAddGroupModal(),
@@ -307,6 +342,7 @@ function showPage(page){
   
   const pages = {
     dashboard: renderDashboard,
+    applicants: renderApplicants,
     students: renderStudents,
     teachers: renderTeachers,
     groups: renderGroups,
@@ -1116,13 +1152,13 @@ async function renderReports(){
 
 // ===================== WHATSAPP =====================
 function sendWhatsApp(phone, studentName){
-  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nأولياء أمور الطالب/ة: ${studentName}\nمن مركز جمال ناصر التعليمي،\nيسعدنا التواصل معكم.`);
+  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nأولياء أمور الطالب/ة: ${studentName}\nمن مركز مسار التعليمي،\nيسعدنا التواصل معكم.`);
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 }
 
 function sendPaymentReminder(phone, studentName){
   const now = new Date();
-  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ة: ${studentName}\n\nنذكركم بسداد رسوم شهر ${MONTHS_AR[now.getMonth()+1]} ${now.getFullYear()}.\n\nمركز جمال ناصر التعليمي\nشكراً لتعاونكم 🎓`);
+  const msg = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ة: ${studentName}\n\nنذكركم بسداد رسوم شهر ${MONTHS_AR[now.getMonth()+1]} ${now.getFullYear()}.\n\nمركز مسار التعليمي\nشكراً لتعاونكم 🎓`);
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 }
 
@@ -1131,7 +1167,7 @@ function sendBulkReminder(phones){
   if(confirm(`سيتم فتح واتساب لـ ${phones.length} ولي أمر. هل أنت متأكد؟`)){
     phones.forEach((phone,i) => {
       setTimeout(()=>{
-        const msg = encodeURIComponent(`السلام عليكم،\nنذكركم بسداد رسوم هذا الشهر.\nمركز جمال ناصر التعليمي 🎓`);
+        const msg = encodeURIComponent(`السلام عليكم،\nنذكركم بسداد رسوم هذا الشهر.\nمركز مسار التعليمي 🎓`);
         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       }, i*500);
     });
@@ -1240,6 +1276,153 @@ function toast(msg, type='success'){
     el.style.transition='all 0.3s';
     setTimeout(()=>el.remove(), 300);
   }, 3500);
+}
+
+// ===================== APPLICANTS =====================
+async function renderApplicants(search = ''){
+  const content = document.getElementById('applicants-page');
+  content.style.display = 'block';
+  document.getElementById('content').style.display = 'none';
+  
+  try {
+    const response = await fetch(`/api/applicants${search ? '?search=' + encodeURIComponent(search) : ''}`);
+    const data = await response.json();
+    
+    const rows = data.applicants.map(a => `
+      <tr>
+        <td><strong>${a.name}</strong></td>
+        <td>${a.phone}</td>
+        <td>${a.parent_name || '-'}</td>
+        <td>${a.age}</td>
+        <td>${a.program}</td>
+        <td>${a.preferred_time || '-'}</td>
+        <td>${a.submission_date ? a.submission_date.split('T')[0] : ''}</td>
+        <td>
+          <span class="badge ${a.status === 'pending' ? 'badge-warning' : a.status === 'approved' ? 'badge-success' : 'badge-danger'}">
+            ${a.status === 'pending' ? 'في الانتظار' : a.status === 'approved' ? 'مقبول' : 'مرفوض'}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="viewApplicant(${a.id})">👁️ عرض</button>
+          ${a.status === 'pending' ? `
+            <button class="btn btn-sm btn-success" onclick="approveApplicant(${a.id})">✓ قبول</button>
+            <button class="btn btn-sm btn-danger" onclick="rejectApplicant(${a.id})">✗ رفض</button>
+          ` : ''}
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center"><div class="empty-state"><div class="icon">📝</div><p>لا يوجد طلاب مقدمين${search ? ' بهذا البحث' : ''}</p></div></td></tr>';
+    
+    document.getElementById('applicants-tbody').innerHTML = rows;
+  } catch (error) {
+    console.error('Error loading applicants:', error);
+    toast('حدث خطأ في تحميل البيانات', 'error');
+  }
+}
+
+async function viewApplicant(id) {
+  try {
+    const response = await fetch(`/api/applicants/${id}`);
+    const data = await response.json();
+    const a = data.applicant;
+    
+    showModal('applicant-modal', `
+      <div class="modal-header">
+        <h3>تفاصيل الطالب المقدم</h3>
+        <button class="close-btn" onclick="closeModal('applicant-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>الاسم</label>
+            <input type="text" value="${a.name}" readonly>
+          </div>
+          <div class="form-group">
+            <label>الهاتف</label>
+            <input type="text" value="${a.phone}" readonly>
+          </div>
+          <div class="form-group">
+            <label>ولي الأمر</label>
+            <input type="text" value="${a.parent_name || ''}" readonly>
+          </div>
+          <div class="form-group">
+            <label>العمر</label>
+            <input type="text" value="${a.age}" readonly>
+          </div>
+          <div class="form-group">
+            <label>البرنامج</label>
+            <input type="text" value="${a.program}" readonly>
+          </div>
+          <div class="form-group">
+            <label>الوقت المناسب</label>
+            <input type="text" value="${a.preferred_time || ''}" readonly>
+          </div>
+          <div class="form-group">
+            <label>ملاحظات إضافية</label>
+            <textarea readonly>${a.notes || ''}</textarea>
+          </div>
+          <div class="form-group">
+            <label>تاريخ التقديم</label>
+            <input type="text" value="${a.submission_date ? a.submission_date.split('T')[0] : ''}" readonly>
+          </div>
+          <div class="form-group">
+            <label>الحالة</label>
+            <select id="applicant-status">
+              <option value="pending" ${a.status === 'pending' ? 'selected' : ''}>في الانتظار</option>
+              <option value="approved" ${a.status === 'approved' ? 'selected' : ''}>مقبول</option>
+              <option value="rejected" ${a.status === 'rejected' ? 'selected' : ''}>مرفوض</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('applicant-modal')">إغلاق</button>
+        ${a.status === 'pending' ? `
+          <button class="btn btn-success" onclick="updateApplicantStatus(${a.id}, 'approved')">✓ قبول</button>
+          <button class="btn btn-danger" onclick="updateApplicantStatus(${a.id}, 'rejected')">✗ رفض</button>
+        ` : ''}
+      </div>
+    `);
+  } catch (error) {
+    console.error('Error viewing applicant:', error);
+    toast('حدث خطأ في عرض البيانات', 'error');
+  }
+}
+
+async function approveApplicant(id) {
+  if (confirm('هل أنت متأكد من قبول هذا الطالب؟')) {
+    await updateApplicantStatus(id, 'approved');
+  }
+}
+
+async function rejectApplicant(id) {
+  if (confirm('هل أنت متأكد من رفض هذا الطالب؟')) {
+    await updateApplicantStatus(id, 'rejected');
+  }
+}
+
+async function updateApplicantStatus(id, status) {
+  try {
+    const response = await fetch(`/api/applicants/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    
+    if (response.ok) {
+      toast(`تم ${status === 'approved' ? 'قبول' : 'رفض'} الطالب بنجاح`, 'success');
+      renderApplicants();
+      closeModal('applicant-modal');
+    } else {
+      toast('حدث خطأ في تحديث الحالة', 'error');
+    }
+  } catch (error) {
+    console.error('Error updating applicant status:', error);
+    toast('حدث خطأ في تحديث الحالة', 'error');
+  }
+}
+
+function exportApplicants() {
+  window.location.href = '/api/applicants/export';
 }
 
 // ===================== UTILS =====================
