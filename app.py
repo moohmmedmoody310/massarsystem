@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from database import get_db, init_db
 from pdf_generator import generate_student_receipt, generate_monthly_report
+from pdf_generator_advanced import generate_ai_student_report, generate_advanced_student_receipt, generate_financial_report
+from attendance_system import attendance_system
 import openpyxl
 from openpyxl.styles import Font, Fill, PatternFill, Alignment, Border, Side
 import hashlib
@@ -934,13 +936,289 @@ def export_applicants():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+# ==================== ADVANCED ATTENDANCE API ====================
+@app.route('/api/attendance/daily', methods=['GET'])
+@login_required
+def get_daily_attendance():
+    """الحصول على ورقة الحضور اليومية"""
+    group_id = request.args.get('group_id', type=int)
+    
+    try:
+        attendance_sheet = attendance_system.generate_daily_attendance_sheet(group_id)
+        return jsonify({
+            'success': True,
+            'data': attendance_sheet
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/attendance/mark', methods=['POST'])
+@login_required
+def mark_attendance():
+    """تسجيل الحضور والغياب"""
+    data = request.get_json()
+    attendance_data = data.get('attendance', {})
+    
+    try:
+        result = attendance_system.mark_attendance_batch(attendance_data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/attendance/report', methods=['GET'])
+@login_required
+def get_attendance_report():
+    """الحصول على تقرير الحضور والغياب"""
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    student_id = request.args.get('student_id', type=int)
+    group_id = request.args.get('group_id', type=int)
+    
+    try:
+        records = attendance_system.get_attendance_report(
+            date_from, date_to, student_id, group_id
+        )
+        return jsonify({
+            'success': True,
+            'data': records
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/attendance/export', methods=['GET'])
+@login_required
+def export_attendance():
+    """تصدير بيانات الحضور"""
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    group_id = request.args.get('group_id', type=int)
+    
+    try:
+        output = attendance_system.export_attendance_excel(date_from, date_to, group_id)
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=f'attendance_report_{date_from}_to_{date_to}.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ==================== AI REPORTS API ====================
+@app.route('/api/reports/ai/student/<int:student_id>', methods=['GET'])
+@login_required
+def generate_ai_student_report(student_id):
+    """توليد تقرير ذكاء اصطناعي للطالب"""
+    try:
+        # الحصول على بيانات الطالب
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT * FROM students WHERE id = ?', (student_id,))
+        student = cursor.fetchone()
+        
+        if not student:
+            return jsonify({'error': 'الطالب غير موجود'}), 404
+        
+        # الحصول على بيانات الحضور
+        cursor.execute('''
+            SELECT * FROM attendance 
+            WHERE student_id = ? 
+            ORDER BY date DESC 
+            LIMIT 30
+        ''', (student_id,))
+        attendance_data = [dict(record) for record in cursor.fetchall()]
+        
+        # الحصول على بيانات الدرجات
+        cursor.execute('''
+            SELECT * FROM grades_results 
+            WHERE student_id = ? 
+            ORDER BY exam_date DESC 
+            LIMIT 20
+        ''', (student_id,))
+        grades_data = [dict(record) for record in cursor.fetchall()]
+        
+        # الحصول على بيانات المدفوعات
+        cursor.execute('''
+            SELECT * FROM payments 
+            WHERE student_id = ? 
+            ORDER BY payment_date DESC 
+            LIMIT 20
+        ''', (student_id,))
+        payments_data = [dict(record) for record in cursor.fetchall()]
+        
+        db.close()
+        
+        # توليد التقرير
+        filepath, filename = generate_ai_student_report(
+            dict(student), attendance_data, grades_data, payments_data
+        )
+        
+        return send_file(
+            filepath,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/pdf'
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ==================== FINANCIAL MANAGEMENT API ====================
+@app.route('/api/financial/summary', methods=['GET'])
+@login_required
+def get_financial_summary():
+    """الحصول على ملخص مالي"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        # إجمالي الإيرادات
+        cursor.execute('SELECT SUM(amount) as total FROM payments')
+        total_income = cursor.fetchone()['total'] or 0
+        
+        # إجمالي المصروفات
+        cursor.execute('SELECT SUM(amount) as total FROM expenses')
+        total_expenses = cursor.fetchone()['total'] or 0
+        
+        # رواتب المعلمين
+        cursor.execute('SELECT SUM(amount) as total FROM teacher_salaries')
+        teacher_salaries = cursor.fetchone()['total'] or 0
+        
+        db.close()
+        
+        financial_data = {
+            'total_income': total_income,
+            'total_expenses': total_expenses,
+            'teacher_salaries': teacher_salaries,
+            'period': 'شهر الحالي'
+        }
+        
+        return jsonify({
+            'success': True,
+            'data': financial_data
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/financial/report', methods=['GET'])
+@login_required
+def generate_financial_report():
+    """توليد التقرير المالي"""
+    try:
+        # الحصول على البيانات المالية
+        financial_data = get_financial_summary().get_json()['data']
+        
+        # توليد التقرير
+        filepath, filename = generate_financial_report(financial_data)
+        
+        return send_file(
+            filepath,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/pdf'
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ==================== SECURE ADMIN AREA ====================
+@app.route('/api/admin/verify', methods=['POST'])
+def verify_admin_access():
+    """التحقق من صلاحيات المدير"""
+    data = request.get_json()
+    password = data.get('password')
+    
+    # كلمة سر خاصة للقسم المالي
+    ADMIN_PASSWORD = 'massar_admin_2024'
+    
+    if password == ADMIN_PASSWORD:
+        session['admin_verified'] = True
+        return jsonify({
+            'success': True,
+            'message': 'تم التحقق بنجاح'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'كلمة المرور غير صحيحة'
+        }), 401
+
+@app.route('/api/admin/financial', methods=['GET'])
+def get_admin_financial_data():
+    """الحصول على البيانات المالية للمدير فقط"""
+    if not session.get('admin_verified'):
+        return jsonify({'error': 'غير مصرح'}), 401
+    
+    try:
+        # بيانات مفصلة عن الأرباح
+        db = get_db()
+        cursor = db.cursor()
+        
+        # إيرادات الشهور الماضية
+        cursor.execute('''
+            SELECT month, year, SUM(amount) as monthly_income
+            FROM payments
+            GROUP BY month, year
+            ORDER BY year DESC, month DESC
+            LIMIT 12
+        ''')
+        monthly_income = [dict(record) for record in cursor.fetchall()]
+        
+        # المصروفات التفصيلية
+        cursor.execute('''
+            SELECT category, SUM(amount) as total
+            FROM expenses
+            GROUP BY category
+            ORDER BY total DESC
+        ''')
+        expenses_by_category = [dict(record) for record in cursor.fetchall()]
+        
+        db.close()
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'monthly_income': monthly_income,
+                'expenses_by_category': expenses_by_category
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     init_db()
     print("\n" + "="*50)
-    print("  مركز مسار التعليمي - نظام الإدارة")
+    print("  مركز مسار التعليمي - نظام الإدارة المتقدم")
     print("="*50)
     print("  الرابط: http://localhost:5000")
     print("  المستخدم: admin")
     print("  كلمة المرور: admin123")
+    print("  كلمة سر المدير: massar_admin_2024")
     print("="*50 + "\n")
     app.run(debug=False, host='0.0.0.0', port=5000)
