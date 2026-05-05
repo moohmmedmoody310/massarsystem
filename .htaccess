@@ -1,0 +1,4 @@
+PassengerAppRoot /home/your_username/masarsystem.zya.me
+PassengerPython /usr/bin/python3
+PassengerAppType wsgi
+PassengerStartupFile passenger_wsgi.py
