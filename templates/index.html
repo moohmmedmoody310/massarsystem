@@ -198,6 +198,24 @@ tr:hover td{background:rgba(240,244,248,0.6)}
     <div class="nav-item" onclick="showPage('students')">
       <span class="icon">👥</span> الطلاب
     </div>
+    <div class="nav-section">حضور وغياب</div>
+    <div class="nav-item" onclick="showPage('attendance-daily')">
+      <span class="icon">✅</span> الحضور اليومي
+    </div>
+    <div class="nav-item" onclick="showPage('attendance-report')">
+      <span class="icon">📊</span> تقارير الحضور
+    </div>
+    <div class="nav-section">تقارير ذكية</div>
+    <div class="nav-item" onclick="showPage('ai-reports')">
+      <span class="icon">🤖</span> تقارير الذكاء الاصطناعي
+    </div>
+    <div class="nav-section">مالية</div>
+    <div class="nav-item" onclick="showPage('financial')">
+      <span class="icon">💰</span> ملخص مالي
+    </div>
+    <div class="nav-item" onclick="showPage('admin-financial')">
+      <span class="icon">🔐</span> تقارير الأرباح
+    </div>
     <div class="nav-item" onclick="showPage('teachers')">
       <span class="icon">👨‍🏫</span> المعلمون
     </div>
@@ -286,9 +304,21 @@ function showPage(page){
   event && event.currentTarget && event.currentTarget.classList.add('active');
   
   const titles = {
-    dashboard:'لوحة التحكم', applicants:'الطلاب المقدمين', students:'الطلاب', teachers:'المعلمون',
-    groups:'المجموعات', payments:'المدفوعات', expenses:'المصروفات',
-    attendance:'الحضور والغياب', results:'النتائج والدرجات', reports:'التقارير'
+    dashboard:'لوحة التحكم', 
+    applicants:'الطلاب المقدمين', 
+    students:'الطلاب', 
+    teachers:'المعلمون',
+    groups:'المجموعات', 
+    payments:'المدفوعات', 
+    expenses:'المصروفات',
+    attendance:'الحضور والغياب', 
+    'attendance-daily':'الحضور اليومي',
+    'attendance-report':'تقارير الحضور',
+    'ai-reports':'تقارير الذكاء الاصطناعي',
+    'financial':'ملخص مالي',
+    'admin-financial':'تقارير الأرباح',
+    results:'النتائج والدرجات', 
+    reports:'التقارير'
   };
   document.getElementById('page-title').textContent = titles[page] || page;
   
@@ -320,6 +350,11 @@ function showPage(page){
       case 'payments': renderPayments(); break;
       case 'expenses': renderExpenses(); break;
       case 'attendance': renderAttendance(); break;
+      case 'attendance-daily': renderAttendanceDaily(); break;
+      case 'attendance-report': renderAttendanceReport(); break;
+      case 'ai-reports': renderAIReports(); break;
+      case 'financial': renderFinancial(); break;
+      case 'admin-financial': renderAdminFinancial(); break;
       case 'results': renderResults(); break;
       case 'reports': renderReports(); break;
       default: console.log('Page not found:', page);
@@ -1463,6 +1498,302 @@ async function updateApplicantStatus(id, status) {
 
 function exportApplicants() {
   window.location.href = '/api/applicants/export';
+}
+
+// ===================== ADVANCED PAGES =====================
+async function renderAttendanceDaily() {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><br>جاري تحميل بيانات الحضور...</div>';
+  
+  try {
+    const response = await fetch('/api/attendance/daily');
+    const data = await response.json();
+    
+    if (data.success) {
+      const attendanceSheet = data.data;
+      
+      content.innerHTML = `
+        <div class="table-card">
+          <div class="table-header">
+            <h3>✅ الحضور اليومي - ${attendanceSheet.date}</h3>
+            <div class="table-actions">
+              <button class="btn btn-primary" onclick="markDailyAttendance()">✓ تسجيل الحضور</button>
+              <button class="btn btn-outline" onclick="exportAttendance()">📊 Excel</button>
+            </div>
+          </div>
+          <div class="attendance-grid">
+            ${attendanceSheet.students.map(student => `
+              <div class="attendance-card">
+                <div class="student-info">
+                  <h4>${student.name}</h4>
+                  <p>${student.group_name || 'لا يوجد مجموعة'} - ${student.subject_name || ''}</p>
+                  <small>📞 ${student.phone}</small>
+                </div>
+                <div class="attendance-controls">
+                  <select class="attendance-select" id="status-${student.id}">
+                    ${Object.entries(student.attendance_types).map(([key, type]) => 
+                      `<option value="${key}" ${student.status === key ? 'selected' : ''}>${type.name}</option>`
+                    ).join('')}
+                  </select>
+                  <input type="text" class="attendance-notes" id="notes-${student.id}" 
+                         placeholder="ملاحظات" value="${student.notes || ''}">
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (error) {
+    console.error('Error loading attendance:', error);
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><br>حدث خطأ في تحميل البيانات</div>';
+  }
+}
+
+async function markDailyAttendance() {
+  const attendanceData = {};
+  document.querySelectorAll('.attendance-card').forEach(card => {
+    const studentId = card.querySelector('.attendance-select').id.replace('status-', '');
+    const status = document.getElementById(`status-${studentId}`).value;
+    const notes = document.getElementById(`notes-${studentId}`).value;
+    
+    attendanceData[studentId] = { status, notes };
+  });
+  
+  try {
+    const response = await fetch('/api/attendance/mark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attendance: attendanceData })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      toast(`تم تسجيل حضور ${result.marked_count} طالب بنجاح`, 'success');
+    } else {
+      toast('حدث خطأ في تسجيل الحضور', 'error');
+    }
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+    toast('حدث خطأ في تسجيل الحضور', 'error');
+  }
+}
+
+async function renderAIReports() {
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="table-card">
+      <div class="table-header">
+        <h3>🤖 تقارير الذكاء الاصطناعي</h3>
+        <div class="table-actions">
+          <input class="search-input" placeholder="🔍 بحث بالاسم..." id="student-search" oninput="debounce(()=>loadStudentsForAI(this.value),400)">
+        </div>
+      </div>
+      <div id="ai-students-list">
+        <div class="loading"><div class="spinner"></div><br>جاري تحميل الطلاب...</div>
+      </div>
+    </div>
+  `;
+  
+  loadStudentsForAI();
+}
+
+async function loadStudentsForAI(search = '') {
+  try {
+    const response = await fetch(`/api/students${search ? '?search=' + encodeURIComponent(search) : ''}`);
+    const data = await response.json();
+    
+    const studentsHTML = data.students.map(student => `
+      <div class="student-card">
+        <div class="student-info">
+          <h4>${student.name}</h4>
+          <p>${student.group_name || 'لا يوجد مجموعة'}</p>
+          <small>📞 ${student.phone}</small>
+        </div>
+        <div class="student-actions">
+          <button class="btn btn-primary" onclick="generateAIReport(${student.id})">
+            🤖 إنشاء تقرير ذكي
+          </button>
+        </div>
+      </div>
+    `).join('') || '<div class="empty-state"><div class="icon">👥</div><p>لا يوجد طلاب</p></div>';
+    
+    document.getElementById('ai-students-list').innerHTML = studentsHTML;
+  } catch (error) {
+    console.error('Error loading students:', error);
+    document.getElementById('ai-students-list').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>حدث خطأ في تحميل البيانات</p></div>';
+  }
+}
+
+async function generateAIReport(studentId) {
+  try {
+    window.open(`/api/reports/ai/student/${studentId}`, '_blank');
+    toast('جاري إنشاء التقرير الذكي...', 'success');
+  } catch (error) {
+    console.error('Error generating AI report:', error);
+    toast('حدث خطأ في إنشاء التقرير', 'error');
+  }
+}
+
+async function renderFinancial() {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div><br>جاري تحميل البيانات المالية...</div>';
+  
+  try {
+    const response = await fetch('/api/financial/summary');
+    const data = await response.json();
+    
+    if (data.success) {
+      const financial = data.data;
+      
+      content.innerHTML = `
+        <div class="financial-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card success">
+              <div class="stat-icon">💰</div>
+              <div class="stat-info">
+                <h3>${financial.total_income.toLocaleString()}</h3>
+                <p>إجمالي الإيرادات</p>
+              </div>
+            </div>
+            <div class="stat-card danger">
+              <div class="stat-icon">💸</div>
+              <div class="stat-info">
+                <h3>${financial.total_expenses.toLocaleString()}</h3>
+                <p>إجمالي المصروفات</p>
+              </div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-icon">👨‍🏫</div>
+              <div class="stat-info">
+                <h3>${financial.teacher_salaries.toLocaleString()}</h3>
+                <p>رواتب المعلمين</p>
+              </div>
+            </div>
+            <div class="stat-card primary">
+              <div class="stat-icon">📊</div>
+              <div class="stat-info">
+                <h3>${(financial.total_income - financial.total_expenses).toLocaleString()}</h3>
+                <p>صافي الربح</p>
+              </div>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <h3>📊 التقارير المالية</h3>
+              <button class="btn btn-primary" onclick="generateFinancialReport()">📄 إنشاء تقرير PDF</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading financial data:', error);
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><br>حدث خطأ في تحميل البيانات</div>';
+  }
+}
+
+async function renderAdminFinancial() {
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="security-card">
+      <div class="security-header">
+        <h3>🔐 قسم التقارير المالية المحمية</h3>
+        <p>هذا القسم يتطلب مصادقة خاصة للوصول إلى بيانات الأرباح</p>
+      </div>
+      <div class="security-form">
+        <div class="form-group">
+          <label>كلمة المرور الخاصة بالمدير</label>
+          <input type="password" id="admin-password" class="form-input" placeholder="أدخل كلمة المرور">
+        </div>
+        <button class="btn btn-primary" onclick="verifyAdminAccess()">🔓 الوصول للبيانات</button>
+      </div>
+    </div>
+  `;
+}
+
+async function verifyAdminAccess() {
+  const password = document.getElementById('admin-password').value;
+  
+  try {
+    const response = await fetch('/api/admin/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      toast('تم التحقق بنجاح', 'success');
+      loadAdminFinancialData();
+    } else {
+      toast('كلمة المرور غير صحيحة', 'error');
+    }
+  } catch (error) {
+    console.error('Error verifying admin:', error);
+    toast('حدث خطأ في التحقق', 'error');
+  }
+}
+
+async function loadAdminFinancialData() {
+  try {
+    const response = await fetch('/api/admin/financial');
+    const data = await response.json();
+    
+    if (data.success) {
+      const financial = data.data;
+      
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="financial-dashboard">
+          <div class="table-card">
+            <div class="table-header">
+              <h3>📈 إيرادات الشهور الماضية</h3>
+            </div>
+            <div class="chart-container">
+              ${financial.monthly_income.map(month => `
+                <div class="month-stat">
+                  <span class="month-name">${MONTHS_AR[month.month]} ${month.year}</span>
+                  <span class="month-income">${month.monthly_income.toLocaleString()} جنيه</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <h3>💸 المصروفات حسب الفئة</h3>
+            </div>
+            <div class="expenses-chart">
+              ${financial.expenses_by_category.map(expense => `
+                <div class="expense-item">
+                  <span class="expense-category">${expense.category}</span>
+                  <span class="expense-amount">${expense.total.toLocaleString()} جنيه</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading admin financial data:', error);
+    toast('حدث خطأ في تحميل البيانات', 'error');
+  }
+}
+
+function generateFinancialReport() {
+  window.open('/api/financial/report', '_blank');
+}
+
+function exportAttendance() {
+  const dateFrom = prompt('من تاريخ (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+  const dateTo = prompt('إلى تاريخ (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+  
+  if (dateFrom && dateTo) {
+    window.open(`/api/attendance/export?date_from=${dateFrom}&date_to=${dateTo}`, '_blank');
+  }
 }
 
 // ===================== UTILS =====================
