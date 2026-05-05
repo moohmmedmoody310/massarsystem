@@ -1,13 +1,3 @@
-[build]
-builder = "nixpacks"
-
-[build.nixpacks]
-phases = {
-  build = {
-    cmds = ["pip install --upgrade pip && pip install -r requirements.txt"]
-  }
-}
-
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 300
