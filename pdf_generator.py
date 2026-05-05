@@ -14,13 +14,13 @@ REPORTS_DIR = os.path.join(os.path.dirname(__file__), 'reports')
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 # ألوان السنتر
-COLOR_PRIMARY = colors.HexColor('#1a3c5e')
-COLOR_SECONDARY = colors.HexColor('#2980b9')
-COLOR_ACCENT = colors.HexColor('#27ae60')
-COLOR_LIGHT = colors.HexColor('#ecf0f1')
-COLOR_DARK = colors.HexColor('#2c3e50')
+COLOR_PRIMARY = colors.HexColor('#1a2615')
+COLOR_SECONDARY = colors.HexColor('#c5a059')
+COLOR_ACCENT = colors.HexColor('#2d3924')
+COLOR_LIGHT = colors.HexColor('#fbf9f4')
+COLOR_DARK = colors.HexColor('#161c12')
 COLOR_RED = colors.HexColor('#e74c3c')
-COLOR_GOLD = colors.HexColor('#f39c12')
+COLOR_GOLD = colors.HexColor('#c5a059')
 
 def get_arabic_style(size=12, bold=False, color=None, align=TA_RIGHT):
     style = ParagraphStyle(
@@ -33,7 +33,7 @@ def get_arabic_style(size=12, bold=False, color=None, align=TA_RIGHT):
     )
     return style
 
-def generate_student_receipt(student, payment, center_name="مركز جمال ناصر التعليمي"):
+def generate_student_receipt(student, payment, center_name="مركز مسار التعليمي"):
     """توليد إيصال دفع للطالب"""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4,
@@ -165,7 +165,7 @@ def generate_student_receipt(student, payment, center_name="مركز جمال ن
     buffer.seek(0)
     return buffer.getvalue()
 
-def generate_monthly_report(students_data, month, year, center_name="مركز جمال ناصر التعليمي"):
+def generate_monthly_report(students_data, month, year, center_name="مركز مسار التعليمي"):
     """توليد تقرير شهري للمدفوعات"""
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4,

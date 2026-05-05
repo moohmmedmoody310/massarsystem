@@ -803,18 +803,11 @@ def public_register():
         db = get_db()
         cursor = db.cursor()
 
-        # إضافة الطالب مع ملاحظات تحتوي على البرنامج والوقت المفضل
-        full_notes = f"التسجيل من الموقع\n"
-        full_notes += f"البرنامج: {program}\n"
-        full_notes += f"الوقت المفضل: {preferred_time}\n"
-        full_notes += f"العمر: {age}\n"
-        if notes:
-            full_notes += f"ملاحظات: {notes}"
-
+        # إضافة الطالب في جدول الطلاب المقدمين
         cursor.execute('''
-            INSERT INTO students (name, phone, parent_name, notes, status, join_date)
-            VALUES (?, ?, ?, ?, 'pending', ?)
-        ''', (name, phone, parent_name, full_notes, datetime.now().strftime('%Y-%m-%d')))
+            INSERT INTO applicants (name, phone, parent_name, age, program, preferred_time, notes, submission_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (name, phone, parent_name, age, program, preferred_time, notes, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
         db.commit()
         db.close()
@@ -828,10 +821,123 @@ def public_register():
         print(f"Error in public_register: {e}")
         return jsonify({'success': False, 'message': 'حدث خطأ في التسجيل'}), 500
 
+# API endpoints للطلاب المقدمين
+@app.route('/api/applicants', methods=['GET'])
+def get_applicants():
+    if 'user_id' not in session:
+        return jsonify({'error': 'غير مصرح'}), 401
+    
+    search = request.args.get('search', '')
+    db = get_db()
+    cursor = db.cursor()
+    
+    if search:
+        cursor.execute('''
+            SELECT * FROM applicants 
+            WHERE name LIKE ? OR phone LIKE ? OR parent_name LIKE ?
+            ORDER BY submission_date DESC
+        ''', (f'%{search}%', f'%{search}%', f'%{search}%'))
+    else:
+        cursor.execute('SELECT * FROM applicants ORDER BY submission_date DESC')
+    
+    applicants = cursor.fetchall()
+    db.close()
+    
+    return jsonify({'applicants': [dict(applicant) for applicant in applicants]})
+
+@app.route('/api/applicants/<int:applicant_id>', methods=['GET'])
+def get_applicant(applicant_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'غير مصرح'}), 401
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM applicants WHERE id = ?', (applicant_id,))
+    applicant = cursor.fetchone()
+    db.close()
+    
+    if not applicant:
+        return jsonify({'error': 'الطالب غير موجود'}), 404
+    
+    return jsonify({'applicant': dict(applicant)})
+
+@app.route('/api/applicants/<int:applicant_id>/status', methods=['PUT'])
+def update_applicant_status(applicant_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'غير مصرح'}), 401
+    
+    data = request.get_json()
+    status = data.get('status')
+    
+    if status not in ['pending', 'approved', 'rejected']:
+        return jsonify({'error': 'حالة غير صالحة'}), 400
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('UPDATE applicants SET status = ? WHERE id = ?', (status, applicant_id))
+    db.commit()
+    db.close()
+    
+    return jsonify({'success': True, 'message': f'تم تحديث الحالة إلى {status}'})
+
+@app.route('/api/applicants/export', methods=['GET'])
+def export_applicants():
+    if 'user_id' not in session:
+        return jsonify({'error': 'غير مصرح'}), 401
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT name, phone, parent_name, age, program, preferred_time, notes, submission_date, status
+        FROM applicants ORDER BY submission_date DESC
+    ''')
+    
+    applicants = cursor.fetchall()
+    db.close()
+    
+    # إنشاء ملف Excel
+    import io
+    import openpyxl
+    from openpyxl import Workbook
+    
+    output = io.BytesIO()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "الطلاب المقدمين"
+    
+    # Headers
+    headers = ['الاسم', 'الهاتف', 'ولي الأمر', 'العمر', 'البرنامج', 'الوقت المناسب', 'ملاحظات', 'تاريخ التقديم', 'الحالة']
+    ws.append(headers)
+    
+    # Data
+    for applicant in applicants:
+        row = [
+            applicant[0],  # name
+            applicant[1],  # phone
+            applicant[2],  # parent_name
+            applicant[3],  # age
+            applicant[4],  # program
+            applicant[5],  # preferred_time
+            applicant[6],  # notes
+            applicant[7],  # submission_date
+            applicant[8]   # status
+        ]
+        ws.append(row)
+    
+    wb.save(output)
+    output.seek(0)
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name='applicants.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
 if __name__ == '__main__':
     init_db()
     print("\n" + "="*50)
-    print("  مركز جمال ناصر التعليمي - نظام الإدارة")
+    print("  مركز مسار التعليمي - نظام الإدارة")
     print("="*50)
     print("  الرابط: http://localhost:5000")
     print("  المستخدم: admin")

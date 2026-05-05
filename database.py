@@ -163,6 +163,20 @@ def init_db():
         FOREIGN KEY(teacher_id) REFERENCES teachers(id)
     )''')
 
+    # جدول الطلاب المقدمين
+    c.execute('''CREATE TABLE IF NOT EXISTS applicants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        parent_name TEXT,
+        age TEXT,
+        program TEXT,
+        preferred_time TEXT,
+        notes TEXT,
+        submission_date TEXT DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'pending'
+    )''')
+
     # إضافة بيانات أولية
     # المراحل الدراسية
     c.execute("SELECT COUNT(*) FROM grades")
@@ -187,9 +201,8 @@ def init_db():
     c.execute("SELECT COUNT(*) FROM subjects")
     if c.fetchone()[0] == 0:
         subjects = [
-            ('رياضيات',), ('عربي',), ('إنجليزي',), ('علوم',),
-            ('فيزياء',), ('كيمياء',), ('أحياء',), ('تاريخ',),
-            ('جغرافيا',), ('تربية دينية',), ('لغة فرنسية',), ('حاسب آلي',)
+            ('برنامج التأسيس',), ('حفظ المتشابهات',), ('علم التجويد',), ('التحدث بالفصحى',),
+            ('البرنامج السلوكي',), ('بناء الشخصية',), ('بناء النفسي',), ('برنامج المواهب',)
         ]
         c.executemany("INSERT INTO subjects (name) VALUES (?)", subjects)
 
