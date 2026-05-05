@@ -1,46 +1,27 @@
 import sqlite3
 import os
-import psycopg2
 from datetime import datetime
-import urllib.parse
 
-# استخدام PostgreSQL على Railway.app أو SQLite محلياً
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    # PostgreSQL على Railway.app
-    # تحويل DATABASE_URL إلى صيغة psycopg2
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://')
-    parsed = urllib.parse.urlparse(DATABASE_URL)
-
-    def get_db():
-        conn = psycopg2.connect(
-            host=parsed.hostname,
-            port=parsed.port or 5432,
-            database=parsed.path[1:],
-            user=parsed.username,
-            password=parsed.password
-        )
-        return conn
-
-    def close_db(conn):
-        conn.close()
+# استخدام SQLite مع مسار دائم على Railway.app
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Railway.app - استخدام /tmp كمسار دائم
+    DB_PATH = '/tmp/center.db'
 else:
-    # SQLite محلياً
+    # محلياً
     DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'center.db')
 
-    def get_db():
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON")
-        return conn
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
-    def close_db(conn):
-        conn.close()
+def close_db(conn):
+    conn.close()
 
 def init_db():
-    # إنشاء مجلد قاعدة البيانات فقط في حالة SQLite
-    if not DATABASE_URL:
+    # إنشاء مجلد قاعدة البيانات فقط في حالة SQLite محلياً
+    if not os.environ.get('RAILWAY_ENVIRONMENT'):
         os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
     conn = get_db()
