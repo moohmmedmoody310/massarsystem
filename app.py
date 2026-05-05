@@ -20,6 +20,9 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
+# إنشاء قاعدة البيانات عند بدء التشغيل
+init_db()
+
 MONTHS_AR = {
     1: 'يناير', 2: 'فبراير', 3: 'مارس', 4: 'أبريل',
     5: 'مايو', 6: 'يونيو', 7: 'يوليو', 8: 'أغسطس',
@@ -834,6 +837,4 @@ if __name__ == '__main__':
     print("  المستخدم: admin")
     print("  كلمة المرور: admin123")
     print("="*50 + "\n")
-    import os
-    port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(debug=False, host='0.0.0.0', port=5000)
