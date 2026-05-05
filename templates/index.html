@@ -309,20 +309,26 @@ function showPage(page){
     addBtn.style.display = 'none';
   }
   
-  const pages = {
-    dashboard: renderDashboard,
-    applicants: renderApplicants,
-    students: renderStudents,
-    teachers: renderTeachers,
-    groups: renderGroups,
-    payments: renderPayments,
-    expenses: renderExpenses,
-    attendance: renderAttendance,
-    results: renderResults,
-    reports: renderReports
-  };
-  
-  if(pages[page]) pages[page]();
+  // استدعاء الدالة المناسبة مع معالجة الأخطاء
+  try {
+    switch(page) {
+      case 'dashboard': renderDashboard(); break;
+      case 'applicants': renderApplicants(); break;
+      case 'students': renderStudents(); break;
+      case 'teachers': renderTeachers(); break;
+      case 'groups': renderGroups(); break;
+      case 'payments': renderPayments(); break;
+      case 'expenses': renderExpenses(); break;
+      case 'attendance': renderAttendance(); break;
+      case 'results': renderResults(); break;
+      case 'reports': renderReports(); break;
+      default: console.log('Page not found:', page);
+    }
+  } catch(error) {
+    console.error('Error loading page:', error);
+    const content = document.getElementById('content');
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><br>حدث خطأ في تحميل الصفحة</div>';
+  }
 }
 
 function refreshPage(){ showPage(state.page); }
